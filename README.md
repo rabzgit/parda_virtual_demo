@@ -6,6 +6,6 @@ An interactive, seven-act walk through PARDA, a privacy pipeline for smart glass
 
 - Works on laptop, tablet and phone. Tap anywhere to move on, drag to look around.
 - Sound on recommended. Needs a browser with WebGL.
-- Single self-contained page (`index.html`). Three.js r128 loads from cdnjs; fonts from Google Fonts.
+- One page (`index.html`) plus the character cutouts in `img/`. Three.js r128 loads from cdnjs; fonts from Google Fonts.
 
 This public version leaves out the paper's measured results and figures until the paper is published.
