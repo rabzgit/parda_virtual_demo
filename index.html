@@ -510,7 +510,7 @@ const CALLX = [
       clues: [{ tag: 'Implicit · Economic', why: 'Money pressure. Paid late.', fact: 'short on money', caught: false }, { tag: 'Linkable · Relational', why: 'A coworker lives next door.', fact: 'coworker next door', caught: true }] } ] }
 ];
 const CALL_END = ['Okay. Call me when you’re home.', 'Will do. Bye, Mom.'];
-const ACTS = ['Timeline', 'The call', 'Freeze', 'The dossier', 'PARDA', 'Street again', 'The honest part'];
+const ACTS = ['Timeline', 'The call', 'Freeze', 'The dossier', 'PARDA', 'The honest part'];
 const plain = (h) => h.replace(/<[^>]+>/g, '');
 
 
@@ -2294,17 +2294,22 @@ function buildStudio() {
   scene2.add(gH); S.gH = gH;
   S.lblG = addM(holoText('ON THE GLASSES', 0.24, { color: 0xffb24a, opacity: 0.85 }), 0, -4.3, -0.5);
   // the pipeline, left to right: one frame per stage on a rail that slides past as the audio moves on
-  const rail = S.rail = new THREE.Group(); scene2.add(rail); S.rx = 0; S.bx = 0; S.fm = [];
+  const rail = S.rail = new THREE.Group(); scene2.add(rail); S.rx = 0; S.bx = 0; S.fm = []; S.port = false;
+  // two frame sets share the same materials: wide for landscape, narrow and taller for a phone held upright
+  const railW = S.railW = new THREE.Group(), railN = S.railN = new THREE.Group(); rail.add(railW); rail.add(railN); railN.visible = false;
   ['01 · DIARIZE', '02 · TRANSCRIBE', '03 · ANONYMIZE', '04 · ENCRYPT'].forEach((name, i) => {
-    const x = i * 18, fa = holoM(0x8fd8e8, 0.25), fb = holoM(0x8fd8e8, 0.09); S.fm.push([fa, fb]);
-    rail.add(loopAt(rrShape(13, 6.6, 0.6), fa, x, 0.1, 0)); rail.add(loopAt(rrShape(12.6, 6.2, 0.5), fb, x, 0.1, 0));
-    const lt = holoText(name, 0.26, { color: 0x8fd8e8, opacity: 0.85 }); lt.position.set(x, 3.95, 0); rail.add(lt);
-    if (i < 3) {
-      const cm = holoM(0x8fd8e8, 0.5); rail.add(lineOf([new V3(x + 6.9, 0.1, 0), new V3(x + 11.1, 0.1, 0)], cm));
-      [x + 8.2, x + 9, x + 9.8].forEach((cx) => rail.add(lineOf([new V3(cx - 0.22, 0.32, 0), new V3(cx, 0.1, 0), new V3(cx - 0.22, -0.12, 0)], cm)));
-    }
+    const x = i * 18, fa = holoM(0x8fd8e8, 0.25), fb = holoM(0x8fd8e8, 0.09), cm = holoM(0x8fd8e8, 0.5); S.fm.push([fa, fb]);
+    [[railW, 13, 6.6, 3.95], [railN, 8.4, 7.2, 4.25]].forEach((F) => {
+      const g = F[0], fw = F[1], fh = F[2], hw = fw / 2 + 0.4;
+      g.add(loopAt(rrShape(fw, fh, 0.6), fa, x, 0.1, 0)); g.add(loopAt(rrShape(fw - 0.4, fh - 0.4, 0.5), fb, x, 0.1, 0));
+      const lt = holoText(name, 0.26, { color: 0x8fd8e8, opacity: 0.85 }); lt.position.set(x, F[3], 0); g.add(lt);
+      if (i < 3) {
+        g.add(lineOf([new V3(x + hw, 0.1, 0), new V3(x + 18 - hw, 0.1, 0)], cm));
+        [x + 8.2, x + 9, x + 9.8].forEach((cx) => g.add(lineOf([new V3(cx - 0.22, 0.32, 0), new V3(cx, 0.1, 0), new V3(cx - 0.22, -0.12, 0)], cm)));
+      }
+      if (i === 0) g.add(lineOf([new V3(-8.6, 0.1, 0), new V3(-hw, 0.1, 0)], cm));
+    });
   });
-  rail.add(lineOf([new V3(-8.6, 0.1, 0), new V3(-6.9, 0.1, 0)], holoM(0x8fd8e8, 0.5)));
   // the far end (trust boundary, phone) sits one stage past the last frame, in the same rail
   const far = S.far = new THREE.Group(); far.position.x = 54; rail.add(far);
   const addF = (m, x, y, z) => { m.position.set(x, y, z); far.add(m); return m; };
@@ -2370,6 +2375,17 @@ function layRow(list, key, y) {
   let x = -wsum / 2;
   list.forEach((w, i) => { if (i) x += w.glue ? 0.015 : gap; w['x' + key] = x + w[key].userData.w / 2; x += w[key].userData.w; w.y = y; });
 }
+function layRows(list, key, y, split) {
+  if (!split) { layRow(list, key, y); return; }
+  layRow(list.slice(0, split), key, y + 0.36); layRow(list.slice(split), key, y - 0.36);
+}
+function wordSplit(list) {
+  // break near the middle of the row's width, never in front of trailing punctuation
+  let tot = 0; list.forEach((w) => { tot += w.m.userData.w + 0.13; });
+  let acc = 0, best = 0, bd = 1e9;
+  for (let i = 1; i < list.length; i++) { acc += list[i - 1].m.userData.w + 0.13; if (!list[i].glue && Math.abs(acc - tot / 2) < bd) { bd = Math.abs(acc - tot / 2); best = i; } }
+  return best;
+}
 function studioStart(pick) {
   const S = ST;
   S.run.forEach((m) => { if (m.parent) m.parent.remove(m); if (m.material.map) m.material.map.dispose(); m.geometry.dispose(); m.material.dispose(); });
@@ -2384,16 +2400,19 @@ function studioStart(pick) {
       if (w.pii) { w.a = holoText(w.anon, 0.34, { color: STC.mom, opacity: 0 }); scene2.add(w.a); S.run.push(w.a); }
       S.words.push(w);
     });
-    layRow(R[0], 'm', R[2]);
+    let wid = 0; R[0].forEach((w) => { wid += w.m.userData.w + 0.13; });
+    const split = S.port && wid > 6.6 ? wordSplit(R[0]) : 0, yy = split ? R[2] - 0.25 : R[2];
+    layRows(R[0], 'm', yy, split);
     R[0].forEach((w) => { w.am = w.pii ? w.a : w.m; });
-    layRow(R[0], 'am', R[2]);
-    R[0].forEach((w) => { w.m.position.set(w.xm, R[2], 0); if (w.a) w.a.position.set(w.xam, R[2], 0); });
+    layRows(R[0], 'am', yy, split);
+    R[0].forEach((w) => { w.m.position.set(w.xm, w.y, 0); if (w.a) w.a.position.set(w.xam, w.y, 0); });
   });
   const out = plain(pick.anon), wds = out.split(' ');
   let txt = out; if (out.length > 22) { const half = Math.ceil(wds.length / 2); txt = wds.slice(0, half).join(' ') + '\n' + wds.slice(half).join(' '); }
   S.out = holoText(txt, 0.21, { color: 0xeaf8fc, opacity: 0, weight: '500' });
   if (S.out.userData.W > 2.15) S.out.scale.setScalar(2.15 / S.out.userData.W);
   S.out.position.set(12, -0.75, -0.45); S.far.add(S.out); S.run.push(S.out);
+  S.tagM.position.x = S.tagY.position.x = S.port ? -3.5 : -3.95;
   S.mode = 'run'; S.T = 0; S.cm = S.rs = S.amp = S.conv = S.pw = 0; S.burstDone = false; S.burstT = -1; S.yaw = S.pitch = 0;
   S.rx = 0; S.rail.position.x = 0; S.bx = -9.5; S.capOn = S.titleOn = null;
   S.pos.set(-3, 1.2, 16); S.look.set(-3, 0.2, 0);
@@ -2423,6 +2442,7 @@ function studioResize() {
   const w = window.innerWidth, h = window.innerHeight; if (!w || !h) return;
   R2.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2)); R2.setSize(w, h, false);
   cam2.aspect = w / h; cam2.fov = w / h >= 1 ? 50 : 62; cam2.updateProjectionMatrix();
+  if (ST && ST.railW) { ST.port = w / h < 0.8; ST.railW.visible = !ST.port; ST.railN.visible = ST.port; }
 }
 function studioUpdate(dt) {
   const S = ST;
@@ -2452,7 +2472,7 @@ function studioUpdate(dt) {
     const b = S.bar[i], eat = cl((b.x - sweep) / 0.5 + 0.5);
     const v = b.s < 0 ? 0.04 : b.env * (0.2 + 0.8 * Math.abs(Math.sin(T * b.w + b.ph) * Math.sin(T * b.w * 0.37 + b.ph * 2)));
     const h = Math.max(0.02, v * 1.7 * S.amp) * (1 - S.conv) * eat, row = b.s === 0 ? 1.15 : b.s === 1 ? -1.15 : 0;
-    S.ps.set((b.x + S.bx) * (1 - S.conv), row * S.rs * (1 - S.conv), 0); S.sc.set(1, Math.max(h, 0.0001), 1);
+    S.ps.set((b.x * (S.port ? 0.8 : 1) + S.bx) * (1 - S.conv), row * S.rs * (1 - S.conv), 0); S.sc.set(1, Math.max(h, 0.0001), 1);
     S.m4.compose(S.ps, S.q, S.sc); S.bars.setMatrixAt(i, S.m4);
     S.c.copy(S.cw).lerp(S.cols[b.s + 1], S.cm); S.bars.setColorAt(i, S.c);
   }
@@ -2536,9 +2556,10 @@ function studioUpdate(dt) {
   // camera
   const hh = Math.atan(Math.tan(cam2.fov * PI / 360) * cam2.aspect);
   const portrait = cam2.aspect < 0.8;
-  let lx = 0, ly = -0.75, dist = Math.max(10.4, (portrait ? 4.2 : 5.8) / Math.tan(hh));
+  let lx = 0, ly = portrait ? -0.3 : -0.75, dist = Math.max(10.4, (portrait ? 4.9 : 5.8) / Math.tan(hh));
   if (st === 5 && portrait) { lx = clamp(S.cube.position.x, 1.5, 12); if (p > 0.58) lx = 12; ly = -0.4; dist = Math.max(8.5, 3.0 / Math.tan(hh)); }
   else if (st === 5) { lx = 6; ly = -0.6; dist = Math.max(12.5, 7.8 / Math.tan(hh)); }
+  else if (st >= 6 && portrait) { lx = 8.8; ly = 0.5; dist = Math.max(11, 5.6 / Math.tan(hh)); }
   else if (st >= 6) { lx = 6; ly = 1.0; dist = Math.max(14, 9.6 / Math.tan(hh)); }
   if (st === 0) { dist += (1 - p) * 5; lx = -3 * (1 - cl((p - 0.55) / 0.4)); }
   if (!S.drag) { const d = Math.exp(-dt * 1.2); S.yaw *= d; S.pitch *= d; }
@@ -2640,12 +2661,12 @@ function inferUpdate(dt) {
   });
   // camera: the left column first, then a pan right with the arrows, pulling back so both ends are in frame
   const hh = Math.atan(Math.tan(cam2.fov * PI / 360) * cam2.aspect), portrait = cam2.aspect < 0.8;
-  let lx = I.LX, dist = Math.max(10.8, 3.4 / Math.tan(hh));
+  let lx = I.LX, ly = 0, dist = Math.max(10.8, 3.4 / Math.tan(hh));
   if (st >= 1) {
-    if (portrait) { lx = I.RX - 2; dist = Math.max(10.8, 3.6 / Math.tan(hh)); }
+    if (portrait) { lx = I.RX - 0.4; ly = -0.35; dist = Math.max(11.8, 3.1 / Math.tan(hh)); }
     else { lx = (I.LX + I.RX) / 2 - 1.5; dist = Math.max(12, 13.8 / Math.tan(hh)); }
   }
-  S.tv.set(lx, 0, 0); S.look.lerp(S.tv, k * 0.45);
+  S.tv.set(lx, ly, 0); S.look.lerp(S.tv, k * 0.45);
   if (!S.drag) { const d = Math.exp(-dt * 1.2); S.yaw *= d; S.pitch *= d; }
   const orbit = S.yaw + Math.sin(T * 0.11) * 0.06, el = 0.05 + S.pitch;
   S.tv.set(S.look.x + Math.sin(orbit) * dist, S.look.y + 0.4 + Math.sin(el) * dist, Math.cos(orbit) * dist);
@@ -2882,42 +2903,8 @@ async function b_dark() {
   await cover(false);
 }
 $('go7').onclick = () => { audioInit(); next(); };
-async function b_street2() {
-  const my = run; setAct(6);
-  await cover(true); if (my !== run) return;
-  if (NOGL) { await cover(false); bi = beats.indexOf(b_honest) - 1; next(); return; }
-  showAct('world'); frozen = false; worldEl.classList.remove('frozen'); ringOn = false; ringE.hidden = true; ringE.classList.remove('draw');
-  nightOn = false; nightK = 0; applyNight(0); camZ = STOPS[2]; stopI = 2; yaw = 0; pitch = 0.02; stopFwd();
-  hero.root.visible = false; clearLanterns(); hideGo(); tapAction = null; stopFwd();
-  const c = picks[0] || CALLX[0].opts[1];
-  const dos = $('dossier'), dr = $('dr'), dend = $('dend');
-  dr.innerHTML = ''; dend.textContent = ''; $('dh').textContent = 'File · you, through PARDA'; dos.hidden = true;
-  amb(0.18, 2); cardShow(false);
-  await cover(false); if (my !== run) return;
-  waveOn = true; nightOn = true;
-  setCard({ k: 'Street again', t: 'You say it again.<span class="lbl">What you said</span>' + c.raw, html: true }); cardShow(true);
-  await wait(2800); if (my !== run) return;
-  setCard({ k: 'Street again', t: 'It passes through the veil.<span class="lbl">What they hear</span>' + c.anon, html: true });
-  const spoke = speak(plain(c.anon));
-  await wait(spoke ? 3600 : 2600); if (my !== run) return;
-  dos.hidden = false;
-  for (let i = 0; i < picks.length; i++) {
-    const o = picks[i], li = document.createElement('li');
-    const b = document.createElement('span'); b.className = 'bec'; b.textContent = '“' + plain(o.anon) + '”'; li.appendChild(b);
-    o.clues.forEach((c) => {
-      const f = document.createElement('span');
-      if (c.caught) { f.className = 'inf blank'; f.setAttribute('aria-label', 'Clue generalized: ' + c.tag); } else { f.className = 'inf faint'; f.textContent = 'Slipped through: ' + c.why; }
-      li.appendChild(f);
-    });
-    dr.appendChild(li);
-    await wait(500); if (my !== run) return;
-  }
-  await wait(1200); if (my !== run) return;
-  setCard({ k: 'Street again', t: picks.some((o) => o.clues.some((c) => !c.caught)) ? 'PARDA reduces what leaks. Not all of it.' : 'PARDA reduces what leaks.', hint: 'Tap anywhere to continue.' });
-  setGo('Continue', () => next());
-}
 async function b_honest() {
-  const my = run; setAct(7);
+  const my = run; setAct(6);
   hideGo(); cardShow(false); waveOn = false;
   try { window.speechSynthesis && speechSynthesis.cancel(); } catch (e) {}
   await cover(true); if (my !== run) return;
@@ -2948,7 +2935,7 @@ $('again').onclick = async () => {
   await cover(false);
 };
 
-const beats = [b_timeline, b_intro, b_walk, b_call, b_freeze, b_dossier, b_dark, b_street2, b_honest];
+const beats = [b_timeline, b_intro, b_walk, b_call, b_freeze, b_dossier, b_dark, b_honest];
 function next() { bi++; run++; if (bi < beats.length) beats[bi](); }
 
 bi = 0; setAct(1);

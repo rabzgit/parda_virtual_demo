@@ -1,6 +1,6 @@
 # PARDA — virtual demo
 
-An interactive, seven-act walk through PARDA, a privacy pipeline for smart glasses.
+An interactive, six-act walk through PARDA, a privacy pipeline for smart glasses.
 
 **Play it:** https://rabzgit.github.io/parda_virtual_demo/
 
