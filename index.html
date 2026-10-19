@@ -53,11 +53,12 @@ button { font: inherit; color: inherit; }
 .hud .name { background: rgba(8,12,26,.45); padding: 5px 8px; border-radius: 6px; }
 .hud .actl { display: none; }
 .hud .l { display: flex; gap: 12px; align-items: center; min-width: 0; }
-#snd {
-  pointer-events: auto; cursor: pointer; background: var(--veil); border: 1px solid var(--edge); border-radius: 6px;
-  font-family: var(--f-mono); font-size: 0.6875rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--mute); padding: 4px 8px;
-}
-#snd[aria-pressed="true"] { color: var(--lantern); border-color: var(--lantern); }
+#snd { pointer-events: auto; cursor: pointer; display: grid; place-items: center; width: 34px; height: 34px; padding: 0; background: transparent; border: 0; border-radius: 50%; color: rgba(236,231,217,.5); transition: color .2s, background .2s; }
+#snd:hover { color: var(--ink); background: rgba(8,12,26,.45); }
+#snd svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+#snd .s-off { display: none; }
+#snd[aria-pressed="false"] .s-on { display: none; }
+#snd[aria-pressed="false"] .s-off { display: block; }
 button:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
 
 /* ---------- shared docks ---------- */
@@ -68,18 +69,19 @@ button:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
 }
 .dock.off { opacity: 0; transform: translateY(10px); }
 .card {
-  width: min(100%, 34rem); display: flex; flex-direction: column; gap: 10px;
+  width: min(100%, 34rem); margin: 0 auto; align-items: center; text-align: center; display: flex; flex-direction: column; gap: 10px;
   padding: 14px 16px 16px; background: var(--veil); border: 1px solid var(--edge); border-radius: 10px;
   -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
 }
 .kick { font-family: var(--f-mono); font-size: 0.6875rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--lantern); }
-.line { margin: 0; font-size: clamp(1.02rem, 2.6vw, 1.25rem); line-height: 1.5; max-width: 40ch; text-wrap: pretty; }
+.line { margin: 0 auto; font-size: clamp(1.02rem, 2.6vw, 1.25rem); line-height: 1.5; max-width: 40ch; text-wrap: pretty; }
 .line.rise { animation: rise .6s ease both; }
 @keyframes rise { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 .line b { font-weight: 400; color: #ffd1d1; background: rgba(255,74,74,.22); border-radius: 3px; padding: 0 3px; }
 .line u { text-decoration: none; color: var(--cold); border-bottom: 1px solid var(--cold); }
 .line .lbl { display: block; font-family: var(--f-mono); font-size: .6875rem; letter-spacing: .14em; text-transform: uppercase; color: var(--mute); margin-top: 6px; }
-.row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
+.row { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px 14px; }
+#go { display: none !important; }
 .row:empty { display: none; }
 .cta {
   pointer-events: auto; cursor: pointer; font-family: var(--f-display); font-weight: 600; font-size: .875rem; letter-spacing: .04em;
@@ -87,7 +89,7 @@ button:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
 }
 .cta:hover { filter: brightness(1.08); }
 .cta:active { transform: translateY(1px); }
-.hint { min-width: 0; flex: 1 1 12rem; font-family: var(--f-mono); font-size: .6875rem; line-height: 1.5; color: #b9c0d0; text-shadow: 0 1px 6px rgba(0,0,0,.8); }
+.hint { min-width: 0; flex: 1 1 12rem; text-align: center; font-family: var(--f-mono); font-size: .6875rem; line-height: 1.5; color: #b9c0d0; text-shadow: 0 1px 6px rgba(0,0,0,.8); }
 .hint:empty { display: none; }
 
 #curtain { position: absolute; inset: 0; z-index: 40; background: #02030a; opacity: 0; pointer-events: none; transition: opacity .55s; }
@@ -97,7 +99,7 @@ button:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
 #a1 { background: var(--night) no-repeat center 60% / auto 46%; }
 #gl1, #gl { filter: saturate(1.04) contrast(1.03); }
 #gl1 { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: pointer; }
-.ui1t { position: absolute; left: 0; top: 0; z-index: 5; padding: 50px 28px 44px var(--gl); pointer-events: none; background: radial-gradient(ellipse at 0% 0%, rgba(6,9,20,.55), rgba(6,9,20,0) 72%); }
+.ui1t { position: absolute; left: 0; right: 0; top: 0; z-index: 5; padding: 46px var(--gr) 40px var(--gl); text-align: center; pointer-events: none; background: radial-gradient(ellipse at 50% 0%, rgba(6,9,20,.55), rgba(6,9,20,0) 72%); }
 .year { font-family: var(--f-display); font-weight: 600; font-size: clamp(2.1rem, 8vw, 3.4rem); letter-spacing: .04em; line-height: 1; text-shadow: 0 2px 16px rgba(0,0,0,.6); }
 .era { margin: 6px 0 0; font-size: clamp(1.02rem, 2.6vw, 1.25rem); font-style: italic; min-height: 1.5em; transition: opacity .25s; text-shadow: 0 1px 10px rgba(0,0,0,.85); }
 .era.swap { opacity: 0; }
@@ -112,19 +114,24 @@ button:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
 .knobw svg { width: 100%; height: 100%; display: block; }
 .intro { position: absolute; inset: 0; z-index: 6; display: none; align-items: center; justify-content: center; padding: 56px var(--gr) 32px var(--gl); pointer-events: none;
   background: radial-gradient(ellipse 70% 62% at 50% 50%, rgba(4,6,14,.72), rgba(4,6,14,.38) 70%, rgba(4,6,14,.6)); transition: opacity 1.1s; }
-#a1.intro .intro { display: flex; }
+/* the section carries the class 'intro' too, so undo the overlay rules on it: the whole act must take taps */
+#a1.intro { pointer-events: auto; padding: 0; background: var(--night) no-repeat center 60% / auto 46%; }
+#a1.intro .intro { display: flex; pointer-events: none; }
 #a1.intro.leaving .intro { opacity: 0; }
 #a1.intro .ui1t, #a1.intro .ui1b { opacity: 0; pointer-events: none; }
 .ui1t, .ui1b { transition: opacity .8s; }
-.intro-in { width: min(100%, 36rem); display: flex; flex-direction: column; gap: 10px; }
-.intro .kick { margin-bottom: 6px; }
+.intro-in { width: min(100%, 36rem); display: flex; flex-direction: column; align-items: center; text-align: center; gap: 16px; }
+.intro .kick { margin: 0; font-size: clamp(.95rem, 3.2vw, 1.35rem); letter-spacing: .24em; color: var(--ink); text-shadow: 0 2px 16px rgba(0,0,0,.85); }
+.intro .tapgo { font-family: var(--f-mono); font-size: .8rem; letter-spacing: .18em; text-transform: uppercase; color: var(--cold); text-shadow: 0 1px 10px rgba(0,0,0,.9); }
+#a1.intro .tapgo { animation: ilin 1.1s ease 1.2s forwards, tapPulse 2.6s ease-in-out 2.4s infinite; }
+@keyframes tapPulse { 0%, 100% { opacity: .45; } 50% { opacity: 1; } }
 .intro p { margin: 0; font-size: clamp(1.2rem, 3.6vw, 1.85rem); line-height: 1.35; text-shadow: 0 2px 16px rgba(0,0,0,.85); text-wrap: balance; }
 .intro p.em { font-style: italic; color: var(--cold); margin-top: 6px; }
 .intro .go { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin-top: 18px; }
 .intro .go .cta { pointer-events: auto; font-size: 1rem; padding: .75rem 1.6rem; box-shadow: 0 0 28px rgba(255,178,74,.45); }
 .intro .go .hint { flex: 1 1 14rem; }
 .intro .il { opacity: 0; transform: translateY(6px); }
-#a1.intro .il { animation: ilin 1.1s ease forwards; }
+#a1.intro .il:not(.tapgo) { animation: ilin 1.1s ease forwards; }
 #a1.intro .il:nth-child(1) { animation-delay: .5s; } #a1.intro .il:nth-child(2) { animation-delay: 1.2s; } #a1.intro .il:nth-child(3) { animation-delay: 2.4s; }
 #a1.intro .il:nth-child(4) { animation-delay: 3.5s; } #a1.intro .il:nth-child(5) { animation-delay: 4.6s; } #a1.intro .il:nth-child(6) { animation-delay: 6s; } #a1.intro .il:nth-child(7) { animation-delay: 7.2s; }
 @keyframes ilin { to { opacity: 1; transform: none; } }
@@ -172,7 +179,7 @@ button:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
 @keyframes rip { to { transform: scale(7); opacity: 0; } }
 
 .dossier {
-  position: absolute; z-index: 11; top: 44px; right: var(--gr); width: min(22rem, calc(100% - var(--gl) - var(--gr)));
+  position: absolute; z-index: 11; top: 44px; left: 50%; transform: translateX(-50%); width: min(24rem, calc(100% - var(--gl) - var(--gr)));
   max-height: calc(100% - 270px); overflow: auto; padding: 12px 14px; background: var(--veil); border: 1px solid var(--edge); border-radius: 10px;
   -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); font-family: var(--f-mono);
 }
@@ -245,22 +252,30 @@ button:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
 .ph-end[hidden] { display: none; }
 
 /* ---------- Act 5: pipeline studio ---------- */
-#a7, #a9 { background: radial-gradient(120% 80% at 50% 0%, #121a33, #03050d 70%); overflow: auto; }
-#a7.studio, #a9.studio { background: transparent; }
-#a7 { overflow: hidden; touch-action: none; cursor: pointer; }
+#a7, #a9, #a4 { background: radial-gradient(120% 80% at 50% 0%, #121a33, #03050d 70%); overflow: auto; }
+#a7.studio, #a9.studio, #a4.studio { background: transparent; }
+#a7, #a4 { overflow: hidden; touch-action: none; cursor: pointer; }
 #gl2 { position: absolute; inset: 0; width: 100%; height: 100%; display: none; }
 #gl2.on { display: block; }
 .stu { position: absolute; inset: 0; pointer-events: none; }
 .stu-title { position: absolute; left: 0; right: 0; top: 36%; text-align: center; opacity: 0; transition: opacity 1.4s; }
 .stu-title.in { opacity: 1; }
-.stu-title h1 { margin: 0; padding-left: .3em; font-family: var(--f-display); font-weight: 600; font-size: clamp(2.6rem, 11vw, 5.4rem); letter-spacing: .3em; line-height: 1; text-shadow: 0 0 40px rgba(143,216,232,.35); }
-.stu-title p { margin: 10px 0 0; font-style: italic; color: var(--cold); font-size: 1.1rem; }
-.stu-steps { position: absolute; top: 50px; right: var(--gr); margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; font-family: var(--f-mono); font-size: .625rem; letter-spacing: .12em; text-transform: uppercase; opacity: 0; transition: opacity .8s; }
+.stu-title .ik { font-family: var(--f-mono); font-size: .78rem; letter-spacing: .6em; padding-left: .6em; text-transform: uppercase; color: var(--cold); opacity: 0; }
+.stu-title h1 { margin: 12px 0 0; padding-left: .3em; font-family: var(--f-display); font-weight: 600; font-size: clamp(2.8rem, 12vw, 6.2rem); letter-spacing: .3em; line-height: 1; color: transparent; background: linear-gradient(100deg, #5fb8d0 0%, #f4fbff 38%, #8fd8e8 52%, #ffffff 66%, #5fb8d0 100%) 0 0 / 260% 100%; -webkit-background-clip: text; background-clip: text; filter: drop-shadow(0 0 22px rgba(143,216,232,.45)); }
+.stu-title .scan { height: 1px; width: min(70vw, 26rem); margin: 18px auto 0; background: linear-gradient(90deg, transparent, var(--cold), transparent); transform: scaleX(0); transform-origin: 50% 50%; }
+.stu-title p { margin: 16px 0 0; font-family: var(--f-mono); font-size: .8rem; letter-spacing: .18em; text-transform: uppercase; color: var(--mute); opacity: 0; }
+.stu-title.in .ik { animation: ilin 1.2s ease .3s forwards; }
+.stu-title.in h1 { animation: sheen 5s ease-in-out infinite; }
+.stu-title.in .scan { animation: scanx 1.6s cubic-bezier(.2,.8,.2,1) .7s forwards; }
+.stu-title.in p { animation: ilin 1.2s ease 1.5s forwards; }
+@keyframes sheen { 0% { background-position: 100% 0; } 100% { background-position: -60% 0; } }
+@keyframes scanx { to { transform: scaleX(1); } }
+.stu-steps { position: absolute; top: 46px; left: 0; right: 0; margin: 0; padding: 0 var(--gr) 0 var(--gl); list-style: none; display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; font-family: var(--f-mono); font-size: .625rem; letter-spacing: .12em; text-transform: uppercase; opacity: 0; transition: opacity .8s; }
 .stu-steps.in { opacity: 1; }
 .stu-steps li { padding: 4px 7px; border: 1px solid rgba(143,216,232,.25); border-radius: 4px; color: var(--mute); background: rgba(3,5,11,.5); transition: color .4s, border-color .4s, background .4s; }
 .stu-steps li.on { color: #061018; background: var(--cold); border-color: var(--cold); }
 .stu-steps li.done { color: var(--cold); border-color: rgba(143,216,232,.5); }
-.stu-cap { position: absolute; left: var(--gl); bottom: 20px; width: min(34rem, calc(100% - var(--gl) - var(--gr))); display: flex; flex-direction: column; gap: 6px; padding: 14px 16px; background: rgba(6,10,22,.6); border: 1px solid rgba(143,216,232,.22); border-radius: 10px; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); opacity: 0; transition: opacity .6s; }
+.stu-cap { position: absolute; left: 50%; bottom: 20px; transform: translateX(-50%); text-align: center; align-items: center; width: min(34rem, calc(100% - var(--gl) - var(--gr))); display: flex; flex-direction: column; gap: 6px; padding: 14px 16px; background: rgba(6,10,22,.6); border: 1px solid rgba(143,216,232,.22); border-radius: 10px; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); opacity: 0; transition: opacity .6s; }
 .stu-cap.in { opacity: 1; }
 .stu-cap .kick { color: var(--cold); }
 .stu-cap .hint, .stu-key .hint { flex: none; }
@@ -299,7 +314,7 @@ button:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
 }
 
 /* ---------- Act 7: honest card ---------- */
-.honest { display: flex; flex-direction: column; gap: 18px; }
+.honest { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 18px; }
 .facts { display: flex; flex-direction: column; gap: 14px; }
 .fact { font-size: clamp(1.1rem, 3vw, 1.45rem); line-height: 1.45; max-width: 40ch; opacity: 0; transform: translateY(6px); transition: opacity .9s, transform .9s; }
 .fact.in { opacity: 1; transform: none; }
@@ -312,10 +327,11 @@ figure.fig.in { opacity: 1; }
 figure.fig .mat { background: #f3f1ec; border-radius: 8px; padding: 8px; }
 figure.fig img { display: block; width: 100%; height: auto; border-radius: 4px; }
 figure.fig figcaption { margin-top: 6px; font-family: var(--f-mono); font-size: .6875rem; color: var(--mute); }
-#again { cursor: pointer; background: transparent; color: var(--ink); border: 1px solid var(--edge); font-family: var(--f-display); font-weight: 600; font-size: .875rem; border-radius: 8px; padding: .6rem 1.1rem; align-self: flex-start; }
+#again { cursor: pointer; background: transparent; color: var(--ink); border: 1px solid var(--edge); font-family: var(--f-display); font-weight: 600; font-size: .875rem; border-radius: 8px; padding: .6rem 1.1rem; align-self: center; }
 #again:hover { border-color: var(--lantern); }
 
 @media (prefers-reduced-motion: reduce) {
+  .stu-title.in h1, .stu-title.in .ik, .stu-title.in .scan, .stu-title.in p, #a1.intro .tapgo { animation-duration: .01s; animation-delay: 0s; animation-iteration-count: 1; }
   .line.rise, .dr li, .fl .orb, .ph-b, .phone.ringing .ph-av, .phone.ringing .ph-acc { animation: none; }
   .title, .zone, .node, .key, .fact, .foot, figure.fig, .after, .fl, #big, #curtain, .dock, .phone { transition: none; }
 }
@@ -326,25 +342,20 @@ figure.fig figcaption { margin-top: 6px; font-family: var(--f-mono); font-size: 
 
   <!-- ACT 1: the knob -->
   <section id="a1" class="act on intro">
-    <canvas id="gl1" aria-label="Seven decades on a knob. Tap to twist to the next decade."></canvas>
+    <canvas id="gl1" aria-label="Seven decades of smart glasses. Tap to move to the next decade."></canvas>
     <div class="ui1t" id="ui1t">
       <div class="year" id="year">1960s</div>
       <p class="era" id="era"></p>
     </div>
     <div class="ui1b">
-      <div class="row"><span class="hint" id="h1"></span><button id="go1" class="cta" type="button" hidden>Open your eyes</button></div>
-      <div class="knobw" aria-hidden="true"><svg viewBox="-34 -34 68 68" id="knob"><defs><radialGradient id="kg" cx="35%" cy="30%" r="80%"><stop offset="0" stop-color="#4a5266"/><stop offset="1" stop-color="#11141c"/></radialGradient></defs><circle r="30" fill="url(#kg)" stroke="rgba(236,231,217,.35)" stroke-width="1"/><g id="ridges"></g><circle r="21" fill="#1a1e28" stroke="rgba(236,231,217,.18)"/><rect x="-2" y="-28" width="4" height="12" rx="2" fill="#ffb24a"/></svg></div>
+      <div class="row"><span class="hint" id="h1"></span></div>
+
       <div class="dots" id="dots" role="group" aria-label="Decades"></div>
     </div>
     <div class="intro" id="intro">
       <div class="intro-in">
         <div class="kick il">Smart glasses · 1960s to now</div>
-        <p class="il">They started as machines you wore on your head.</p>
-        <p class="il">Every decade, they got smaller.</p>
-        <p class="il">Quieter. Easier to miss.</p>
-        <p class="il">Now they look like glasses.</p>
-        <p class="il em">They still see. They still hear.</p>
-        <div class="il go"><button class="cta" id="goI" type="button">Begin</button><span class="hint">Seven decades on one knob. Tap anywhere to begin.</span></div>
+        <div class="tapgo il">Tap anywhere to begin</div>
       </div>
     </div>
   </section>
@@ -396,10 +407,17 @@ figure.fig figcaption { margin-top: 6px; font-family: var(--f-mono); font-size: 
 
   <canvas id="gl2" aria-hidden="true"></canvas>
 
+  <!-- ACT 3: what the call gives away, in the studio -->
+  <section id="a4" class="act" aria-label="What the call gives away. Tap anywhere to move on.">
+    <div class="stu">
+      <div class="stu-cap" id="infCap" aria-live="polite"><div class="kick" id="infK"></div><p class="line" id="infL"></p><span class="hint">Tap anywhere to continue.</span></div>
+    </div>
+  </section>
+
   <!-- ACT 5: PARDA, in a dark studio -->
   <section id="a7" class="act" aria-label="The PARDA pipeline, shown step by step. Tap anywhere to move on.">
     <div class="stu">
-      <div class="stu-title" id="stuTitle"><h1>PARDA</h1><p>parda &middot; veil</p></div>
+      <div class="stu-title" id="stuTitle"><div class="ik">Introducing</div><h1>PARDA</h1><div class="scan"></div><p>Privacy for what smart glasses hear</p></div>
       <ol class="stu-steps" id="stuSteps"><li>Diarize</li><li>Transcribe</li><li>Anonymize</li><li>Encrypt</li><li>Re-voice</li></ol>
       <div class="stu-cap" id="stuCap" aria-live="polite"><div class="kick" id="stuK"></div><p class="line" id="stuL"></p><span class="hint">Tap anywhere to skip ahead.</span></div>
       <div class="stu-key" id="stuKey"><p>Redaction happens on the glasses, before audio ever leaves them.</p><span class="hint">Tap anywhere to continue.</span></div>
@@ -444,8 +462,8 @@ figure.fig figcaption { margin-top: 6px; font-family: var(--f-mono); font-size: 
   </section>
 
   <div class="hud">
-    <div class="l"><span class="name">PARDA</span></div>
-    <div class="l"><span class="actl" id="actl"></span><button id="snd" type="button" aria-pressed="true">Sound on</button></div>
+    <div class="l"></div>
+    <div class="l"><span class="actl" id="actl"></span><button id="snd" type="button" aria-pressed="true" aria-label="Sound on" title="Sound"><svg class="s-on" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9zM16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg><svg class="s-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9zM17 9l5 6M22 9l-5 6"/></svg></button></div>
   </div>
   <div id="curtain"></div>
 </div>
@@ -526,10 +544,10 @@ let goFn = null, tapAction = null, worldOn = false, waveOn = false, a1On = true;
 
 function setAct(n) { $('actl').textContent = 'Act ' + n + ' / ' + ACTS.length + ' · ' + ACTS[n - 1]; }
 function showAct(id) {
-  ['a1', 'world', 'a7', 'a9'].forEach((k) => $(k).classList.toggle('on', k === id));
+  ['a1', 'world', 'a4', 'a7', 'a9'].forEach((k) => $(k).classList.toggle('on', k === id));
   worldOn = id === 'world'; a1On = id === 'a1';
-  studioOn = !!R2 && (id === 'a7' || id === 'a9');
-  $('gl2').classList.toggle('on', studioOn); $('a7').classList.toggle('studio', studioOn); $('a9').classList.toggle('studio', studioOn);
+  studioOn = !!R2 && (id === 'a4' || id === 'a7' || id === 'a9');
+  $('gl2').classList.toggle('on', studioOn); $('a4').classList.toggle('studio', studioOn); $('a7').classList.toggle('studio', studioOn); $('a9').classList.toggle('studio', studioOn);
   if (worldOn) resize();
   if (a1On) tlResize();
   if (studioOn) studioResize();
@@ -617,7 +635,7 @@ function speak(text, o) {
 $('snd').onclick = function () {
   muted = !muted;
   this.setAttribute('aria-pressed', String(!muted));
-  this.textContent = muted ? 'Sound off' : 'Sound on';
+  this.setAttribute('aria-label', muted ? 'Sound off' : 'Sound on');
   if (master) master.gain.value = muted ? 0 : 1;
   if (muted) { try { window.speechSynthesis && speechSynthesis.cancel(); } catch (e) {} }
 };
@@ -1628,7 +1646,7 @@ const WA = 2 * PI / 7, GUYZ = 51;
 let R1 = null, scene1 = null, cam1 = null, wheel = null, W1 = null, hemi1 = null, dir1 = null, skies1 = [];
 const knobE = $('knob');
 (function () { const g = $('ridges'); if (!g) return; let h = ''; for (let i = 0; i < 28; i++) { const a = i / 28 * 2 * PI; h += '<line x1="' + (Math.sin(a) * 23).toFixed(2) + '" y1="' + (-Math.cos(a) * 23).toFixed(2) + '" x2="' + (Math.sin(a) * 29).toFixed(2) + '" y2="' + (-Math.cos(a) * 29).toFixed(2) + '" stroke="rgba(236,231,217,' + (i % 4 === 0 ? '.55' : '.22') + ')" stroke-width="1.4"/>'; } g.innerHTML = h; })();
-const eraE = $('era'), yearE = $('year'), go1 = $('go1'), h1 = $('h1'), dotsE = $('dots');
+const eraE = $('era'), yearE = $('year'), go1 = {}, h1 = $('h1'), dotsE = $('dots');
 let era = 0;
 ERAS.forEach((e, i) => {
   const b = document.createElement('button'); b.type = 'button'; b.className = 'dot'; b.setAttribute('aria-label', 'Go to the ' + e[0]);
@@ -1643,7 +1661,7 @@ function paintEra(n, settled) {
   Array.prototype.forEach.call(dotsE.children, (el, k) => el.classList.toggle('on', k === n));
   const last = n === 6 && settled;
   go1.hidden = !last;
-  h1.textContent = last ? 'Or tap anywhere.' : (n === 6 ? '' : 'Tap anywhere to twist to the next decade.');
+  h1.textContent = last ? 'Tap anywhere to continue.' : (n === 6 ? '' : 'Tap anywhere for the next decade.');
 }
 
 // The guy: a cutout in each decade's outfit and smart glasses; in the 2020s, the character sheet itself.
@@ -1792,7 +1810,8 @@ function beginTimeline() {
   W1.intro = false; W1.desc = true; W1.ikT = 0; W1.spinFrom = W1.spin; W1.spinTo = Math.ceil((W1.spin + 0.5) / (2 * PI)) * 2 * PI;
   whoosh(2.6);
 }
-$('goI').onclick = (e) => { e.stopPropagation(); beginTimeline(); };
+// tap anywhere starts it: on press, not on release, so a slow click still counts
+$('a1').addEventListener('pointerdown', () => { if ($('a1').classList.contains('intro')) { audioInit(); beginTimeline(); } });
 const tmpC = { a: null, b: null };
 function lerpC(target, c0, c1, f) { if (!tmpC.a) { tmpC.a = new THREE.Color(); tmpC.b = new THREE.Color(); } tmpC.a.setHex(c0); tmpC.b.setHex(c1); target.copy(tmpC.a).lerp(tmpC.b, f); }
 const tmpW = { v: null };
@@ -1869,7 +1888,7 @@ function renderTL(dt) {
   });
   const end = (e, cancel) => {
     if (!d) return;
-    const tap = !cancel && d.moved < 8 && performance.now() - d.t < 450;
+    const tap = !cancel && d.moved < 8 && performance.now() - d.t < 700;
     d = null; if (W1) W1.drag = null;
     if (tap) advance(1);
   };
@@ -1884,7 +1903,6 @@ function advance(dir) {
   if (n < 0) return;
   spinTo(n);
 }
-go1.onclick = () => { audioInit(); next(); };
 
 /* =====================================================================
    THE STREET (acts 2, 3, 4, 6)
@@ -1992,6 +2010,18 @@ function lantern(text, x, y, z, cls) {
   requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('in')));
   return f;
 }
+// a floating line that sits in the middle of the screen (yf = how far down, 0 to 1)
+function midText(text, yf) {
+  const el = document.createElement('div');
+  el.className = 'fl mid';
+  el.innerHTML = '<i class="orb"></i><span></span>';
+  el.querySelector('span').textContent = text;
+  $('floats').appendChild(el);
+  const f = { el: el, mid: yf, ph: 0 };
+  floatsArr.push(f);
+  requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('in')));
+  return f;
+}
 function dropLantern(f) { f.el.classList.remove('in'); setTimeout(() => { f.el.remove(); }, 950); floatsArr = floatsArr.filter((x) => x !== f); }
 function clearLanterns() { floatsArr.slice().forEach(dropLantern); }
 
@@ -2015,7 +2045,7 @@ worldEl.addEventListener('pointermove', (e) => {
 });
 function endDrag(e, cancelled) {
   if (!drag) return;
-  const tap = !cancelled && drag.moved < 8 && performance.now() - drag.t < 400;
+  const tap = !cancelled && drag.moved < 8 && performance.now() - drag.t < 700;
   drag = null;
   if (cancelled) { yawV = 0; pitchV = 0; }
   if (tap) { yawV = 0; pitchV = 0; audioInit(); if (tapAction) tapAction({ x: e.clientX, y: e.clientY }); else if (goFn) goFn(); }
@@ -2031,6 +2061,7 @@ window.addEventListener('keydown', (e) => {
   }
   if (e.code === 'Space' || e.code === 'Enter') {
     if (onBtn) return;
+    if ($('a4').classList.contains('on')) { e.preventDefault(); audioInit(); inferTap(); return; }
     if ((worldOn || $('a7').classList.contains('on')) && goFn) { e.preventDefault(); audioInit(); goFn(); }
   } else if (e.code === 'ArrowLeft' && worldOn) { keyL = 1; autoFace = false; e.preventDefault(); }
   else if (e.code === 'ArrowRight' && worldOn) { keyR = 1; autoFace = false; e.preventDefault(); }
@@ -2092,6 +2123,7 @@ function drawFloats() {
   const w = worldEl.clientWidth, h = worldEl.clientHeight, v = tmpV();
   for (let i = 0; i < floatsArr.length; i++) {
     const f = floatsArr[i];
+    if (f.mid != null) { f.el.style.visibility = 'visible'; f.el.style.transform = 'translate(calc(' + (w / 2).toFixed(1) + 'px - 50%), ' + (f.mid * h).toFixed(1) + 'px)'; continue; }
     const co = f.co != null ? f.co : (f.co = f.el.classList.contains('callout'));
     v.copy(f.pos); if (!co) v.y += reduce ? 0 : Math.sin(worldT * 0.9 + f.ph) * 0.08;
     const d = camera.position.distanceTo(v);
@@ -2195,7 +2227,7 @@ function drawWave(t) {
    ===================================================================== */
 let R2 = null, scene2 = null, cam2 = null, ST = null, studioOn = false;
 const STAGES = [
-  { k: '', l: '', d: 3.4 },
+  { k: 'Audio in', l: 'The glasses capture the call.', d: 8.4 },
   { k: '01 · Diarize', l: 'One recording, two voices. Split by who spoke.', d: 5.4 },
   { k: '02 · Transcribe', l: 'Speech becomes text.', d: 4.8 },
   { k: '03 · Anonymize', l: 'Clues come out, not just names. Still on the glasses.', d: 5.6 },
@@ -2251,26 +2283,42 @@ function buildStudio() {
     const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex(), color: n[4], transparent: true, opacity: 0.55, blending: THREE.AdditiveBlending, depthWrite: false, fog: false }));
     s.scale.set(n[3], n[3] * 0.6, 1); addM(s, n[0], n[1], n[2]);
   });
-  // the glasses, drawn as a hologram around the action
-  const gH = new THREE.Group(); gH.position.set(0, 0.1, -1.6);
+  S.nBase = scene2.children.length;
+  // the glasses: a small hologram at the start of the line, where the call is captured
+  const gH = new THREE.Group(); gH.position.set(-10.4, 0.2, -0.4); gH.scale.setScalar(0.3);
   S.gm = [holoM(0x8fd8e8, 0.45), holoM(0x8fd8e8, 0.16)];
   const lensA = rrShape(4.5, 3.1, 1.0), lensB = rrShape(4.18, 2.78, 0.86);
   [-2.45, 2.45].forEach((x) => { gH.add(loopAt(lensA, S.gm[0], x, 0, 0)); gH.add(loopAt(lensB, S.gm[1], x, 0, 0)); });
   gH.add(lineOf(new THREE.QuadraticBezierCurve3(new V3(-0.2, 0.95, 0), new V3(0, 1.3, 0), new V3(0.2, 0.95, 0)).getPoints(12), S.gm[0]));
   [-1, 1].forEach((s) => { gH.add(lineOf([new V3(s * 4.7, 1.05, 0), new V3(s * 4.95, 1.05, -1.2), new V3(s * 5.05, 0.9, -7)], S.gm[0])); gH.add(loopAt(rrShape(0.5, 0.34, 0.1), S.gm[0], s * 4.75, 1.05, 0)); });
   scene2.add(gH); S.gH = gH;
-  S.lblG = addM(holoText('ON THE GLASSES', 0.24, { color: 0xffb24a, opacity: 0.85 }), 0, 2.45, -1.6);
+  S.lblG = addM(holoText('ON THE GLASSES', 0.24, { color: 0xffb24a, opacity: 0.85 }), 0, -4.3, -0.5);
+  // the pipeline, left to right: one frame per stage on a rail that slides past as the audio moves on
+  const rail = S.rail = new THREE.Group(); scene2.add(rail); S.rx = 0; S.bx = 0; S.fm = [];
+  ['01 · DIARIZE', '02 · TRANSCRIBE', '03 · ANONYMIZE', '04 · ENCRYPT'].forEach((name, i) => {
+    const x = i * 18, fa = holoM(0x8fd8e8, 0.25), fb = holoM(0x8fd8e8, 0.09); S.fm.push([fa, fb]);
+    rail.add(loopAt(rrShape(13, 6.6, 0.6), fa, x, 0.1, 0)); rail.add(loopAt(rrShape(12.6, 6.2, 0.5), fb, x, 0.1, 0));
+    const lt = holoText(name, 0.26, { color: 0x8fd8e8, opacity: 0.85 }); lt.position.set(x, 3.95, 0); rail.add(lt);
+    if (i < 3) {
+      const cm = holoM(0x8fd8e8, 0.5); rail.add(lineOf([new V3(x + 6.9, 0.1, 0), new V3(x + 11.1, 0.1, 0)], cm));
+      [x + 8.2, x + 9, x + 9.8].forEach((cx) => rail.add(lineOf([new V3(cx - 0.22, 0.32, 0), new V3(cx, 0.1, 0), new V3(cx - 0.22, -0.12, 0)], cm)));
+    }
+  });
+  rail.add(lineOf([new V3(-8.6, 0.1, 0), new V3(-6.9, 0.1, 0)], holoM(0x8fd8e8, 0.5)));
+  // the far end (trust boundary, phone) sits one stage past the last frame, in the same rail
+  const far = S.far = new THREE.Group(); far.position.x = 54; rail.add(far);
+  const addF = (m, x, y, z) => { m.position.set(x, y, z); far.add(m); return m; };
   // the trust boundary
   const bx = 7.2;
-  const dl = lineOf([new V3(bx, -2.7, 0), new V3(bx, 3.8, 0)], new THREE.LineDashedMaterial({ color: 0xece7d9, dashSize: 0.18, gapSize: 0.12, transparent: true, opacity: 0.55 })); dl.computeLineDistances(); scene2.add(dl);
-  S.portal = addM(new THREE.Mesh(new THREE.PlaneGeometry(1.8, 6.5), new THREE.MeshBasicMaterial({ map: gradTex(true), color: 0x8fd8e8, transparent: true, opacity: 0.12, blending: THREE.AdditiveBlending, depthWrite: false })), bx, 0.55, -0.02);
-  S.lblB = addM(holoText('TRUST BOUNDARY', 0.19, { color: 0xece7d9, opacity: 0.7 }), bx, 4.05, 0);
+  const dl = lineOf([new V3(bx, -2.7, 0), new V3(bx, 3.8, 0)], new THREE.LineDashedMaterial({ color: 0xece7d9, dashSize: 0.18, gapSize: 0.12, transparent: true, opacity: 0.55 })); dl.computeLineDistances(); far.add(dl);
+  S.portal = addF(new THREE.Mesh(new THREE.PlaneGeometry(1.8, 6.5), new THREE.MeshBasicMaterial({ map: gradTex(true), color: 0x8fd8e8, transparent: true, opacity: 0.12, blending: THREE.AdditiveBlending, depthWrite: false })), bx, 0.55, -0.02);
+  S.lblB = addF(holoText('TRUST BOUNDARY', 0.19, { color: 0xece7d9, opacity: 0.7 }), bx, 4.05, 0);
   // the companion phone
   const pH = new THREE.Group(); pH.position.set(12, 0.2, -0.6);
   S.pm = [holoM(0x8fd8e8, 0.5), holoM(0x8fd8e8, 0.18)];
   pH.add(loopAt(rrShape(2.6, 5, 0.38), S.pm[0], 0, 0, 0)); pH.add(loopAt(rrShape(2.36, 4.76, 0.28), S.pm[1], 0, 0, 0)); pH.add(loopAt(rrShape(0.62, 0.17, 0.08), S.pm[0], 0, 2.15, 0));
-  scene2.add(pH); S.pH = pH;
-  S.lblP = addM(holoText('COMPANION PHONE', 0.22, { color: 0x8fd8e8 }), 12, 3.05, -0.6);
+  far.add(pH); S.pH = pH;
+  S.lblP = addF(holoText('COMPANION PHONE', 0.22, { color: 0x8fd8e8 }), 12, 3.05, -0.6);
   // the recording: one row of bars
   const bars = new THREE.InstancedMesh(new THREE.BoxGeometry(0.042, 1, 0.042), new THREE.MeshBasicMaterial({ transparent: true, blending: THREE.AdditiveBlending, depthWrite: false }), N);
   bars.instanceMatrix.setUsage(THREE.DynamicDrawUsage); bars.frustumCulled = false;
@@ -2295,16 +2343,17 @@ function buildStudio() {
   const lb = new THREE.Mesh(new THREE.BoxGeometry(0.54, 0.4, 0.1), lm); lock.add(lb);
   lock.scale.setScalar(0.001); scene2.add(lock); S.lock = lock; S.shackle = shackle;
   const hex = []; for (let i = 0; i < 10; i++) { const hm = holoText(['7F 2A C9', 'E1 04 9B', '3D 88 F0', 'A6 51 0E', '0C D7 42', 'B9 6E 13', '54 FA 07', 'C2 3B 9D', '18 E5 6A', '9F 20 C4'][i], 0.15, { color: 0xffb24a, opacity: 0, font: 'Menlo, Consolas, monospace' }); scene2.add(hm); hex.push(hm); } S.hex = hex;
-  S.flash = addM(new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex(), color: 0x8fd8e8, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false })), 12, 0.6, -0.4); S.flash.scale.set(3.4, 3.4, 1);
+  S.flash = addF(new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex(), color: 0x8fd8e8, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false })), 12, 0.6, -0.4); S.flash.scale.set(3.4, 3.4, 1);
   // the new voice, on the phone
   const PN = 46, pb = new THREE.InstancedMesh(new THREE.BoxGeometry(0.03, 1, 0.03), new THREE.MeshBasicMaterial({ color: STC.mom, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false }), PN);
-  pb.instanceMatrix.setUsage(THREE.DynamicDrawUsage); pb.frustumCulled = false; scene2.add(pb); S.pbars = pb; S.PN = PN;
-  S.lblH = addM(holoText('WHAT THEY HEAR', 0.13, { color: 0xece7d9, opacity: 0 }), 12, 1.75, -0.45);
+  pb.instanceMatrix.setUsage(THREE.DynamicDrawUsage); pb.frustumCulled = false; far.add(pb); S.pbars = pb; S.PN = PN;
+  S.lblH = addF(holoText('WHAT THEY HEAR', 0.13, { color: 0xece7d9, opacity: 0 }), 12, 1.75, -0.45);
   // name dissolving
   const BN = 220, bp = new Float32Array(BN * 3), bgeo = new THREE.BufferGeometry(); bgeo.setAttribute('position', new THREE.BufferAttribute(bp, 3));
   S.burst = new THREE.Points(bgeo, new THREE.PointsMaterial({ size: 0.05, color: STC.pii, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false })); S.burst.frustumCulled = false; scene2.add(S.burst);
   S.bvel = new Float32Array(BN * 3); S.BN = BN;
   S.m4 = new THREE.Matrix4(); S.q = new THREE.Quaternion(); S.sc = new V3(); S.ps = new V3(); S.c = new THREE.Color(); S.cw = new THREE.Color(0xeef2ff); S.tv = new V3();
+  S.pipe = scene2.children.slice(S.nBase);
 }
 function tokensOf(raw, anon) {
   const out = [], an = []; let m; const ra = /<u>(.*?)<\/u>/g; while ((m = ra.exec(anon))) an.push(m[1]);
@@ -2323,8 +2372,9 @@ function layRow(list, key, y) {
 }
 function studioStart(pick) {
   const S = ST;
-  S.run.forEach((m) => { scene2.remove(m); if (m.material.map) m.material.map.dispose(); m.geometry.dispose(); m.material.dispose(); });
+  S.run.forEach((m) => { if (m.parent) m.parent.remove(m); if (m.material.map) m.material.map.dispose(); m.geometry.dispose(); m.material.dispose(); });
   S.run = []; S.words = [];
+  S.pipe.forEach((o) => { o.visible = true; }); if (S.inf) S.inf.g.visible = false;
   const mom = CALLX[0].mom.split(' ').map((t) => ({ t: t, pii: false, glue: false }));
   const you = tokensOf(pick.raw, pick.anon);
   [[mom, 0, 1.15], [you, 1, -1.15]].forEach((R) => {
@@ -2343,18 +2393,17 @@ function studioStart(pick) {
   let txt = out; if (out.length > 22) { const half = Math.ceil(wds.length / 2); txt = wds.slice(0, half).join(' ') + '\n' + wds.slice(half).join(' '); }
   S.out = holoText(txt, 0.21, { color: 0xeaf8fc, opacity: 0, weight: '500' });
   if (S.out.userData.W > 2.15) S.out.scale.setScalar(2.15 / S.out.userData.W);
-  S.out.position.set(12, -0.75, -0.45); scene2.add(S.out); S.run.push(S.out);
+  S.out.position.set(12, -0.75, -0.45); S.far.add(S.out); S.run.push(S.out);
   S.mode = 'run'; S.T = 0; S.cm = S.rs = S.amp = S.conv = S.pw = 0; S.burstDone = false; S.burstT = -1; S.yaw = S.pitch = 0;
-  S.pos.set(0, 1.2, 16); S.look.set(0, 0.2, 0);
+  S.rx = 0; S.rail.position.x = 0; S.bx = -9.5; S.capOn = S.titleOn = null;
+  S.pos.set(-3, 1.2, 16); S.look.set(-3, 0.2, 0);
   studioStage(0);
 }
 function studioStage(n) {
   const S = ST; S.stage = n; S.t = 0;
   const C = STAGES[n];
-  $('stuTitle').classList.toggle('in', n === 0);
   $('stuSteps').classList.toggle('in', n >= 1);
   Array.prototype.forEach.call($('stuSteps').children, (li, i) => { li.classList.toggle('on', i === n - 1); li.classList.toggle('done', i < n - 1); });
-  $('stuCap').classList.toggle('in', n >= 1 && n <= 5);
   if (C.k) { $('stuK').textContent = C.k; $('stuL').textContent = C.l; }
   $('stuKey').classList.toggle('in', n === 6);
   if (n === 6) amb(0.12, 2);
@@ -2363,6 +2412,7 @@ function studioIdle() {
   const S = ST; S.mode = 'idle'; S.stage = 6;
   S.run.forEach((m) => { m.material.opacity = 0; });
   ['stuTitle', 'stuSteps', 'stuCap', 'stuKey'].forEach((id) => $(id).classList.remove('in'));
+  S.capOn = S.titleOn = false;
 }
 function studioTap() {
   if (!ST || ST.mode !== 'run') return;
@@ -2375,25 +2425,34 @@ function studioResize() {
   cam2.aspect = w / h; cam2.fov = w / h >= 1 ? 50 : 62; cam2.updateProjectionMatrix();
 }
 function studioUpdate(dt) {
-  const S = ST; S.T += dt;
+  const S = ST;
+  if (S.mode === 'infer') { inferUpdate(dt); return; }
+  S.T += dt;
   if (S.mode === 'run' && S.stage < 6) { S.t += dt; if (S.t >= STAGES[S.stage].d) studioStage(S.stage + 1); }
   const idle = S.mode === 'idle', st = idle ? 7 : S.stage, p = st <= 5 ? Math.min(1, S.t / STAGES[st].d) : 1;
   const k = 1 - Math.exp(-dt * 5), T = S.T, cl = (v) => clamp(v, 0, 1);
   const tg = {
     cm: st === 1 ? cl((p - 0.22) / 0.25) : st >= 2 && st <= 4 ? 1 : 0,
     rs: st === 1 ? cl((p - 0.5) / 0.3) : st >= 2 && st <= 4 ? 1 : 0,
-    amp: st === 0 ? cl((p - 0.35) / 0.4) : st === 1 || st === 2 ? 1 : 0,
+    amp: st === 0 ? cl((p - 0.42) / 0.2) : st === 1 || st === 2 ? 1 : 0,
     conv: st === 4 ? cl(p / 0.45) : st === 5 || st === 6 ? 1 : 0,
     pw: (st === 5 && p > 0.62) || st === 6 ? 1 : 0
   };
   ['cm', 'rs', 'amp', 'conv', 'pw'].forEach((key) => { S[key] += (tg[key] - S[key]) * k; });
+  // the title, then the caption, then the rail sliding on to the next stage
+  const titleWant = !idle && st === 0 && p < 0.42, capWant = !idle && ((st === 0 && p > 0.5) || (st >= 1 && st <= 5));
+  if (S.titleOn !== titleWant) { S.titleOn = titleWant; $('stuTitle').classList.toggle('in', titleWant); }
+  if (S.capOn !== capWant) { S.capOn = capWant; $('stuCap').classList.toggle('in', capWant); }
+  const rxT = st >= 4 ? -54 : st === 3 ? -36 : st === 2 ? -18 : 0;
+  S.rx += (rxT - S.rx) * (1 - Math.exp(-dt * 1.6)); S.rail.position.x = S.rx;
+  S.bx = st === 0 ? -9.5 * (1 - ease(cl((p - 0.45) / 0.5))) : 0;
   // bars; during transcription a sweep eats the wave and leaves words behind
   const sweep = st === 2 ? -4.8 + 9.8 * cl(p / 0.8) : st > 2 ? 9 : -9;
   for (let i = 0; i < S.N; i++) {
     const b = S.bar[i], eat = cl((b.x - sweep) / 0.5 + 0.5);
     const v = b.s < 0 ? 0.04 : b.env * (0.2 + 0.8 * Math.abs(Math.sin(T * b.w + b.ph) * Math.sin(T * b.w * 0.37 + b.ph * 2)));
     const h = Math.max(0.02, v * 1.7 * S.amp) * (1 - S.conv) * eat, row = b.s === 0 ? 1.15 : b.s === 1 ? -1.15 : 0;
-    S.ps.set(b.x * (1 - S.conv), row * S.rs * (1 - S.conv), 0); S.sc.set(1, Math.max(h, 0.0001), 1);
+    S.ps.set((b.x + S.bx) * (1 - S.conv), row * S.rs * (1 - S.conv), 0); S.sc.set(1, Math.max(h, 0.0001), 1);
     S.m4.compose(S.ps, S.q, S.sc); S.bars.setMatrixAt(i, S.m4);
     S.c.copy(S.cw).lerp(S.cols[b.s + 1], S.cm); S.bars.setColorAt(i, S.c);
   }
@@ -2468,9 +2527,10 @@ function studioUpdate(dt) {
   if (S.out) S.out.material.opacity = S.pw; S.lblH.material.opacity = S.pw * 0.75;
   const sideO = st >= 5 ? 0.75 : 0;
   S.lblB.material.opacity += (sideO * 0.9 - S.lblB.material.opacity) * k; S.lblP.material.opacity += (sideO - S.lblP.material.opacity) * k;
-  S.lblG.material.opacity += ((idle ? 0.3 : 0.85) - S.lblG.material.opacity) * k;
+  S.lblG.material.opacity += ((idle || st >= 5 ? 0 : 0.7) - S.lblG.material.opacity) * k;
   // holograms brighten where the work is happening
-  const gB = st >= 1 && st <= 4 ? 0.62 : idle ? 0.3 : 0.42, pB = st >= 5 && !idle ? 0.8 : idle ? 0.3 : 0.4;
+  const gB = st === 0 ? 0.6 : 0.16, pB = st >= 5 && !idle ? 0.8 : idle ? 0.3 : 0.4;
+  S.fm.forEach((f, i) => { const want = st === i + 1 ? 0.78 : idle ? 0.16 : 0.2; f[0].opacity += (want - f[0].opacity) * k; f[1].opacity = f[0].opacity * 0.36; });
   S.gm[0].opacity += (gB - S.gm[0].opacity) * k; S.gm[1].opacity = S.gm[0].opacity * 0.36;
   S.pm[0].opacity += (pB - S.pm[0].opacity) * k; S.pm[1].opacity = S.pm[0].opacity * 0.36;
   // camera
@@ -2480,7 +2540,7 @@ function studioUpdate(dt) {
   if (st === 5 && portrait) { lx = clamp(S.cube.position.x, 1.5, 12); if (p > 0.58) lx = 12; ly = -0.4; dist = Math.max(8.5, 3.0 / Math.tan(hh)); }
   else if (st === 5) { lx = 6; ly = -0.6; dist = Math.max(12.5, 7.8 / Math.tan(hh)); }
   else if (st >= 6) { lx = 6; ly = 1.0; dist = Math.max(14, 9.6 / Math.tan(hh)); }
-  if (st === 0) dist += (1 - p) * 5;
+  if (st === 0) { dist += (1 - p) * 5; lx = -3 * (1 - cl((p - 0.55) / 0.4)); }
   if (!S.drag) { const d = Math.exp(-dt * 1.2); S.yaw *= d; S.pitch *= d; }
   const orbit = S.yaw + Math.sin(T * 0.11) * (idle ? 0.25 : 0.1), el = 0.08 + S.pitch;
   S.tv.set(lx, ly, 0); S.look.lerp(S.tv, k * 0.45);
@@ -2489,8 +2549,112 @@ function studioUpdate(dt) {
   S.dust.rotation.y = T * 0.008;
   R2.render(scene2, cam2);
 }
+
+/* =====================================================================
+   ACT 3: WHAT THE CALL GIVES AWAY
+   The same studio. What you said appears on the left, one line on top of
+   the next. The camera pans right; a line and an arrow run from each
+   sentence to what it gives away.
+   ===================================================================== */
+function wrapText(str, n) {
+  const out = []; let cur = '';
+  str.split(' ').forEach((w) => { if (cur && (cur + ' ' + w).length > n) { out.push(cur); cur = w; } else cur = cur ? cur + ' ' + w : w; });
+  if (cur) out.push(cur);
+  return out.join('\n');
+}
+// a holographic card: faint backing, outline, optional tag, and text
+function infBox(g, x, y, w, h, tag, text, col, th) {
+  const o = { g: new THREE.Group(), mats: [], y: y, a: 0 };
+  o.g.position.set(x, y, 0); g.add(o.g);
+  const back = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ color: 0x08101f, transparent: true, opacity: 0, depthWrite: false }));
+  back.position.z = -0.03; o.g.add(back); o.mats.push([back.material, 0.62]);
+  const fm = holoM(col, 0); o.g.add(loopAt(rrShape(w, h, 0.2), fm, 0, 0, 0)); o.mats.push([fm, 0.85]);
+  const t = holoText(text, th, { color: 0xeaf8fc, opacity: 0, weight: '500' });
+  if (t.userData.W > w - 0.5) t.scale.setScalar((w - 0.5) / t.userData.W);
+  t.position.set(0, tag ? -0.2 : 0, 0.01); o.g.add(t); o.mats.push([t.material, 1]);
+  if (tag) { const tg = holoText(tag, 0.14, { color: col, opacity: 0, font: 'Menlo, Consolas, monospace' }); tg.position.set(0, h / 2 - 0.3, 0.01); o.g.add(tg); o.mats.push([tg.material, 0.95]); }
+  o.set = (a) => { o.mats.forEach((p) => { p[0].opacity = p[1] * a; }); };
+  return o;
+}
+function inferStart() {
+  const S = ST, P = picks.length ? picks : [CALLX[0].opts[0], CALLX[1].opts[0]];
+  if (S.inf) scene2.remove(S.inf.g);
+  S.pipe.forEach((o) => { o.visible = false; }); S.run.forEach((m) => { m.visible = false; });
+  const g = new THREE.Group(); scene2.add(g);
+  const LX = -6, RX = 14, N = P.length, I = { g: g, N: N, LX: LX, RX: RX, src: [], inf: [], arr: [], stage: 0, t: 0, K: 0 };
+  let topY = 0;
+  P.forEach((o, i) => {
+    const sy = N === 1 ? 0 : (i === 0 ? 2.6 : -2.6), sb = infBox(g, LX, sy, 4.4, 2.1, '', wrapText(o.say, 28), STC.you, 0.27); I.src.push(sb);
+    const nc = o.clues.length;
+    o.clues.forEach((c, j) => {
+      const cy = sy + (nc === 1 ? 0 : (j === 0 ? 1.15 : -1.15)), ib = infBox(g, RX, cy, 3.9, 1.8, c.tag.toUpperCase(), wrapText(c.why, 26), STC.pii, 0.24);
+      I.inf.push(ib); topY = Math.max(topY, cy);
+      const a = new V3(LX + 2.25, sy, 0), b = new V3(RX - 2.05, cy, 0);
+      const cu = new THREE.CubicBezierCurve3(a, new V3(a.x + 4.2, a.y, 0), new V3(b.x - 4.2, b.y, 0), b);
+      const m = holoM(STC.pii, 0), ln = lineOf(cu.getPoints(40), m); ln.geometry.setDrawRange(0, 0); g.add(ln);
+      const hm = holoM(STC.pii, 0), head = lineOf([new V3(b.x - 0.3, b.y + 0.17, 0), b.clone(), new V3(b.x - 0.3, b.y - 0.17, 0)], hm); g.add(head);
+      const dot = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex(), color: 0xff7a6a, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false })); dot.scale.set(0.55, 0.55, 1); g.add(dot);
+      I.arr.push({ cu: cu, ln: ln, m: m, hm: hm, dot: dot, a: 0, box: ib });
+    });
+  });
+  I.K = I.inf.length;
+  const hy = topY + 1.55;
+  I.hL = holoText('WHAT YOU SAID', 0.2, { color: STC.you, opacity: 0, font: 'Menlo, Consolas, monospace' }); I.hL.position.set(LX, hy, 0); g.add(I.hL);
+  I.hR = holoText('INFERENCE', 0.28, { color: STC.pii, opacity: 0 }); I.hR.position.set(RX, hy, 0); g.add(I.hR);
+  S.inf = I; S.mode = 'infer'; S.yaw = S.pitch = 0;
+  S.pos.set(LX, 1, 15); S.look.set(LX, 0, 0);
+  infStage();
+}
+function infStage() {
+  const I = ST.inf;
+  const C = [['03 · What you said', I.N > 1 ? 'Two things you said on the call.' : 'One thing you said on the call.'], ['03 · What it gives away', 'What a listener can work out.'], ['03 · Together', 'No name. No number. No address. It still points to you.']][I.stage];
+  $('infK').textContent = C[0]; $('infL').textContent = C[1];
+  $('infL').classList.remove('rise'); void $('infL').offsetWidth; $('infL').classList.add('rise');
+  $('infCap').classList.add('in');
+}
+function inferTap() {
+  const I = ST && ST.inf; if (!I || !ST || ST.mode !== 'infer') return;
+  if (I.stage < 2) { I.stage++; I.t = 0; infStage(); } else next();
+}
+function inferUpdate(dt) {
+  const S = ST, I = S.inf; I.t += dt; S.T += dt;
+  const k = 1 - Math.exp(-dt * 5), T = S.T, cl = (v) => clamp(v, 0, 1), sm = Math.min(1, dt * 4);
+  const D0 = 0.9 + I.N * 1.7 + 1.2, D1 = 1.6 + I.K * 1.15 + 1.4;
+  if (I.stage === 0 && I.t > D0) { I.stage = 1; I.t = 0; infStage(); }
+  else if (I.stage === 1 && I.t > D1) { I.stage = 2; I.t = 0; infStage(); }
+  const st = I.stage, t = I.t;
+  I.hL.material.opacity += (((st >= 1 || t > 0.3) ? 0.85 : 0) - I.hL.material.opacity) * k;
+  I.hR.material.opacity += (((st === 1 && t > 1.0) || st === 2 ? 0.95 : 0) - I.hR.material.opacity) * k;
+  I.src.forEach((b, i) => {
+    const want = st >= 1 ? 1 : cl((t - (0.9 + i * 1.7)) / 1.1);
+    b.a += (want - b.a) * sm; b.set(b.a); b.g.position.y = b.y - 0.14 * (1 - b.a);
+  });
+  I.arr.forEach((r, i) => {
+    const want = st === 2 ? 1 : st === 1 ? cl((t - (1.6 + i * 1.15)) / 1.0) : 0;
+    r.a += (want - r.a) * sm;
+    r.ln.geometry.setDrawRange(0, Math.round(41 * r.a)); r.m.opacity = r.a > 0.01 ? 0.8 : 0;
+    r.hm.opacity = 0.9 * cl((r.a - 0.96) / 0.04);
+    r.dot.material.opacity = r.a > 0.04 ? 0.9 : 0;
+    r.dot.position.copy(r.cu.getPoint(r.a < 0.985 ? r.a : (T * 0.3 + i * 0.23) % 1));
+    const ba = cl((r.a - 0.75) / 0.25); r.box.a += (ba - r.box.a) * Math.min(1, dt * 6); r.box.set(r.box.a); r.box.g.position.y = r.box.y - 0.14 * (1 - r.box.a);
+  });
+  // camera: the left column first, then a pan right with the arrows, pulling back so both ends are in frame
+  const hh = Math.atan(Math.tan(cam2.fov * PI / 360) * cam2.aspect), portrait = cam2.aspect < 0.8;
+  let lx = I.LX, dist = Math.max(10.8, 3.4 / Math.tan(hh));
+  if (st >= 1) {
+    if (portrait) { lx = I.RX - 2; dist = Math.max(10.8, 3.6 / Math.tan(hh)); }
+    else { lx = (I.LX + I.RX) / 2 - 1.5; dist = Math.max(12, 13.8 / Math.tan(hh)); }
+  }
+  S.tv.set(lx, 0, 0); S.look.lerp(S.tv, k * 0.45);
+  if (!S.drag) { const d = Math.exp(-dt * 1.2); S.yaw *= d; S.pitch *= d; }
+  const orbit = S.yaw + Math.sin(T * 0.11) * 0.06, el = 0.05 + S.pitch;
+  S.tv.set(S.look.x + Math.sin(orbit) * dist, S.look.y + 0.4 + Math.sin(el) * dist, Math.cos(orbit) * dist);
+  S.pos.lerp(S.tv, k * 0.35); cam2.position.copy(S.pos); cam2.lookAt(S.look);
+  S.dust.rotation.y = T * 0.008;
+  R2.render(scene2, cam2);
+}
 // tap to move on, drag to look around the studio
-['a7', 'a9'].forEach((id) => {
+['a4', 'a7', 'a9'].forEach((id) => {
   const el = $(id); let d = null;
   el.addEventListener('pointerdown', (e) => { if (e.target.closest && e.target.closest('button')) return; audioInit(); d = { x: e.clientX, y: e.clientY, sx: e.clientX, sy: e.clientY, t: performance.now(), moved: 0 }; if (ST) ST.drag = d; });
   el.addEventListener('pointermove', (e) => {
@@ -2501,9 +2665,10 @@ function studioUpdate(dt) {
   });
   const end = () => {
     if (!d) return;
-    const tap = d.moved < 8 && performance.now() - d.t < 450; d = null; if (ST) ST.drag = null;
+    const tap = d.moved < 8 && performance.now() - d.t < 700; d = null; if (ST) ST.drag = null;
     if (!tap) return;
-    if (id === 'a7') { if (R2) studioTap(); else if (goFn) goFn(); }
+    if (id === 'a4') inferTap();
+    else if (id === 'a7') { if (R2) studioTap(); else if (goFn) goFn(); }
     else revealHonest();
   };
   el.addEventListener('pointerup', end); el.addEventListener('pointercancel', () => { d = null; if (ST) ST.drag = null; });
@@ -2567,9 +2732,9 @@ async function b_intro() {
   }
   resetWorldState(); showAct('world'); amb(0.35, 3);
   await cover(false); if (my !== run) return;
-  lantern('Evening.', CAMX - 1.8, 2.6, -7);
-  lantern('A street like any other.', CAMX - 8, 2.4, -3);
-  lantern('Turn around.', CAMX, 2.7, 8);
+  midText('Evening.', 0.2);
+  midText('A street like any other.', 0.3);
+  midText('Turn around.', 0.4);
   setCard({ k: 'Eyes open', t: 'An evening street. Drag to look around.', hint: 'Tap anywhere to walk on.' }); cardShow(true);
   setGo('Walk on', next); tapAction = next;
 }
@@ -2577,8 +2742,8 @@ async function b_walk() {
   const my = run; setAct(2);
   clearLanterns(); hideGo(); tapAction = null; cardShow(false); stopFwd();
   if (!await arrive(1, my)) return;
-  lantern('Nobody looks at you.', CAMX + 0.4, 2.6, camZ - 8);
-  lantern('Nobody has to.', CAMX - 7, 2.4, camZ - 4);
+  midText('Nobody looks at you.', 0.22);
+  midText('Nobody has to.', 0.32);
   setCard({ k: 'Eyes open', t: 'Everyone here is a stranger.', hint: 'Tap anywhere to walk on.' }); cardShow(true);
   setGo('Walk on', next); tapAction = next;
 }
@@ -2590,7 +2755,7 @@ async function b_call() {
   swayOn = true;
   await wait(900); if (my !== run) return;
   buzz(); ringStart(); phoneShow('in');
-  const ringL = lantern('Your phone. Tap anywhere to answer.', CAMX + 0.2, 1.2, camZ - 2.2);
+  const ringL = midText('Your phone. Tap anywhere to answer.', 0.26);
   await new Promise((res) => { phAccept = res; goFn = res; });
   if (my !== run) return;
   phAccept = null; goFn = null; ringStop(); dropLantern(ringL); amb(0.18, 1);
@@ -2599,14 +2764,14 @@ async function b_call() {
   for (let i = 0; i < CALLX.length; i++) {
     const X = CALLX[i];
     const ty = typing(); await wait(900); if (my !== run) return; ty.remove();
-    bubble('mom', X.mom); speak(X.mom, { pitch: 1.1, rate: 0.98 });
+    bubble('mom', X.mom);
     await wait(500); if (my !== run) return;
     const o = await phChoose(X.opts); if (my !== run) return;
     picks.push(o); bubble('me', o.say);
     await wait(1100); if (my !== run) return;
   }
   const ty = typing(); await wait(900); if (my !== run) return; ty.remove();
-  bubble('mom', CALL_END[0]); speak(CALL_END[0], { pitch: 1.1, rate: 0.98 });
+  bubble('mom', CALL_END[0]);
   await wait(1300); if (my !== run) return;
   bubble('me', CALL_END[1]);
   await wait(600); if (my !== run) return;
@@ -2645,16 +2810,23 @@ async function b_freeze() {
     await wait(900); if (my !== run) return;
     const gp = tmpV(); hero.head.getWorldPosition(gp); faceT = new V3(gp.x, gp.y + 0.006, gp.z + 0.1); zoomOn = true; autoFace = true;
     await wait(reduce ? 50 : 1600); if (my !== run) return;
-    const cp = tmpV(), lp = tmpV(); HERO_CAM.getWorldPosition(cp); HERO_LED.led.getWorldPosition(lp);
-    lantern('Camera', cp.x, cp.y, cp.z, 'callout'); lantern('Recording light', lp.x, lp.y, lp.z, 'callout');
-    setCard({ k: 'Freeze', t: 'A camera on the left. A recording light on the right. They looked like normal glasses.', hint: 'Tap anywhere.' });
+    const cp = tmpV(); HERO_CAM.getWorldPosition(cp);
+    lantern('Camera', cp.x, cp.y, cp.z, 'callout');
+    setCard({ k: 'Freeze', t: 'They looked like normal glasses.', hint: 'Tap anywhere.' });
     const go = () => { ringE.onclick = null; tapAction = null; clearLanterns(); next(); };
     ringE.onclick = go; tapAction = go; goFn = go;
   };
 }
 async function b_dossier() {
-  const my = run; setAct(4);
-  tapAction = null; cardShow(true);
+  const my = run; setAct(3);
+  tapAction = null;
+  if (R2) {
+    cardShow(false); hideGo(); clearLanterns(); ringE.onclick = null;
+    await cover(true); if (my !== run) return;
+    showAct('a4'); inferStart();
+    await cover(false); return;
+  }
+  cardShow(true);
   const dos = $('dossier'), dr = $('dr'), dend = $('dend');
   $('dh').textContent = 'File · you'; dr.innerHTML = ''; dend.textContent = ''; dos.hidden = false;
   const rows = []; picks.forEach((o) => o.clues.forEach((c, j) => rows.push(Object.assign({ say: j ? '' : o.say }, c))));
