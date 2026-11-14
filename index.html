@@ -64,7 +64,7 @@ button:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
 /* ---------- shared docks ---------- */
 .dock {
   position: absolute; left: 0; right: 0; bottom: 0; z-index: 12;
-  padding: 0 var(--gr) 14px var(--gl); pointer-events: none;
+  padding: 0 var(--gr) 66px var(--gl); pointer-events: none;
   transition: opacity .4s, transform .4s;
 }
 .dock.off { opacity: 0; transform: translateY(10px); }
@@ -92,6 +92,55 @@ button:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
 .hint { min-width: 0; flex: 1 1 12rem; text-align: center; font-family: var(--f-mono); font-size: .6875rem; line-height: 1.5; color: #b9c0d0; text-shadow: 0 1px 6px rgba(0,0,0,.8); }
 .hint:empty { display: none; }
 
+/* ---------- the tap cue: one prompt, in one place, shown only while the story waits on you ---------- */
+.cue { position: absolute; z-index: 20; left: 50%; bottom: max(14px, env(safe-area-inset-bottom, 0px)); transform: translate(-50%, 6px); display: flex; align-items: center; gap: 10px;
+  width: max-content; max-width: calc(100% - 24px); padding: 8px 16px 8px 10px; border-radius: 999px; background: rgba(6,10,22,.78); border: 1px solid rgba(143,216,232,.5);
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); pointer-events: none; opacity: 0; transition: opacity .35s, transform .35s, border-color .35s, box-shadow .35s; font-family: var(--f-mono); }
+.cue.on { opacity: 1; transform: translate(-50%, 0); }
+.cue .cw { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.cue .ct { font-size: .78rem; letter-spacing: .1em; text-transform: uppercase; color: #eefbff; }
+.cue .cs { font-size: .66rem; letter-spacing: .04em; color: var(--mute); }
+.cue .cs:empty { display: none; }
+.tapi { position: relative; flex: none; width: 24px; height: 24px; }
+.tapi::before { content: ''; position: absolute; left: 50%; top: 50%; width: 8px; height: 8px; margin: -4px 0 0 -4px; border-radius: 50%; background: var(--cold); }
+.tapi::after { content: ''; position: absolute; inset: 0; border-radius: 50%; border: 1.5px solid var(--cold); opacity: 0; }
+.cue.on .tapi::after { animation: tapring 1.6s ease-out infinite; }
+@keyframes tapring { 0% { transform: scale(.35); opacity: .95; } 80%, 100% { transform: scale(1.15); opacity: 0; } }
+/* the scene is playing by itself: a tap only skips, so the cue goes quiet */
+.cue.auto { border-color: var(--edge); background: rgba(6,10,22,.5); }
+.cue.auto .ct { color: var(--mute); font-size: .68rem; }
+.cue.auto .tapi { width: 14px; height: 14px; }
+.cue.auto .tapi::before { background: var(--mute); width: 6px; height: 6px; margin: -3px 0 0 -3px; }
+.cue.auto .tapi::after { animation: none; }
+/* nobody has tapped for a while: say it louder */
+.cue.nudge { border-color: var(--cold); box-shadow: 0 0 26px rgba(143,216,232,.55); transform: translate(-50%, 0) scale(1.08); }
+#nudge { position: absolute; z-index: 19; left: 50%; top: 50%; width: 92px; height: 92px; margin: -46px 0 0 -46px; border-radius: 50%; border: 2px solid var(--cold); pointer-events: none; opacity: 0; }
+#nudge.show { animation: nudgering 1.8s ease-out infinite; }
+@keyframes nudgering { 0% { transform: scale(.3); opacity: .9; } 85%, 100% { transform: scale(1.5); opacity: 0; } }
+.tapfx { position: absolute; z-index: 35; width: 14px; height: 14px; margin: -7px 0 0 -7px; border: 1.5px solid rgba(236,231,217,.9); border-radius: 50%; pointer-events: none; animation: rip .6s ease-out forwards; }
+/* how far along you are: one segment per act */
+.prog { position: absolute; z-index: 31; top: env(safe-area-inset-top, 0px); left: 0; right: 0; display: flex; gap: 4px; padding: 6px var(--gr) 0 var(--gl); pointer-events: none; transition: opacity .8s; }
+.prog i { flex: 1; height: 3px; border-radius: 2px; background: rgba(236,231,217,.18); transition: background .5s; }
+.prog i.done { background: rgba(236,231,217,.62); }
+.prog i.on { background: var(--lantern); }
+#a1.intro.on ~ .prog { opacity: 0; }
+/* ---------- the lab's logo ---------- */
+.brand { position: relative; display: block; flex: none; width: min(220px, 56vw); aspect-ratio: 971 / 423; border-radius: 10px; overflow: hidden; background: #fff; box-shadow: 0 10px 34px rgba(0,0,0,.55); opacity: 0; }
+.brand img { display: block; width: 100%; height: 100%; }
+.brand::after { content: ''; position: absolute; top: 0; bottom: 0; left: -60%; width: 45%; background: linear-gradient(100deg, transparent, rgba(255,255,255,.75), transparent); transform: skewX(-18deg); }
+.brand i { position: absolute; width: 9%; aspect-ratio: 1; border-radius: 50%; border: 2px solid; opacity: 0; transform: translate(-50%, -50%) scale(.6); }
+.brand.in { animation: brandin 1.2s cubic-bezier(.2,.8,.2,1) forwards; }
+.brand.in::after { animation: brandsheen 1.3s ease 1s forwards; }
+.brand.in i { animation: brandping 3.6s ease-out infinite; }
+.brand.in i:nth-of-type(1) { animation-delay: 1.5s; } .brand.in i:nth-of-type(2) { animation-delay: 1.75s; } .brand.in i:nth-of-type(3) { animation-delay: 2s; } .brand.in i:nth-of-type(4) { animation-delay: 2.25s; }
+@keyframes brandin { from { opacity: 0; clip-path: inset(0 100% 0 0 round 10px); } to { opacity: 1; clip-path: inset(0 0 0 0 round 10px); } }
+@keyframes brandsheen { to { left: 130%; } }
+@keyframes brandping { 0% { opacity: .95; transform: translate(-50%, -50%) scale(.6); } 30%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(2.4); } }
+.intro .brand { position: absolute; left: 50%; bottom: max(26px, env(safe-area-inset-bottom, 0px)); margin-left: max(-75px, -19vw); width: min(150px, 38vw); border-radius: 8px; }
+#a1.intro .brand.in { animation-delay: 1.9s; }
+.honest .brand { margin-top: 6px; }
+@media (prefers-reduced-motion: reduce) { .brand.in { animation-duration: .01s; animation-delay: 0s !important; } .brand.in::after, .brand.in i, .cue.on .tapi::after, .intro .tapgo .tapi::after, #nudge.show { animation: none; } }
+
 #curtain { position: absolute; inset: 0; z-index: 40; background: #02030a; opacity: 0; pointer-events: none; transition: opacity .55s; }
 #curtain.on { opacity: 1; }
 
@@ -103,7 +152,7 @@ button:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
 .year { font-family: var(--f-display); font-weight: 600; font-size: clamp(2.1rem, 8vw, 3.4rem); letter-spacing: .04em; line-height: 1; text-shadow: 0 2px 16px rgba(0,0,0,.6); }
 .era { margin: 6px 0 0; font-size: clamp(1.02rem, 2.6vw, 1.25rem); font-style: italic; min-height: 1.5em; transition: opacity .25s; text-shadow: 0 1px 10px rgba(0,0,0,.85); }
 .era.swap { opacity: 0; }
-.ui1b { position: absolute; left: 0; right: 0; bottom: 0; z-index: 5; display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 40px var(--gr) 16px var(--gl); pointer-events: none; background: linear-gradient(to bottom, rgba(8,12,25,0), rgba(8,12,25,.55) 70%); }
+.ui1b { position: absolute; left: 0; right: 0; bottom: 0; z-index: 5; display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 40px var(--gr) 66px var(--gl); pointer-events: none; background: linear-gradient(to bottom, rgba(8,12,25,0), rgba(8,12,25,.55) 70%); }
 .ui1b .row { justify-content: center; }
 .ui1b .hint { flex: 0 1 auto; text-align: center; font-size: .75rem; }
 .ui1b .cta { pointer-events: auto; font-size: 1rem; padding: .75rem 1.5rem; box-shadow: 0 0 28px rgba(255,178,74,.45); animation: rise .6s ease both; }
@@ -122,8 +171,9 @@ button:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
 .ui1t, .ui1b { transition: opacity .8s; }
 .intro-in { width: min(100%, 36rem); display: flex; flex-direction: column; align-items: center; text-align: center; gap: 16px; }
 .intro .kick { margin: 0; font-size: clamp(.95rem, 3.2vw, 1.35rem); letter-spacing: .24em; color: var(--ink); text-shadow: 0 2px 16px rgba(0,0,0,.85); }
-.intro .tapgo { font-family: var(--f-mono); font-size: .8rem; letter-spacing: .18em; text-transform: uppercase; color: var(--cold); text-shadow: 0 1px 10px rgba(0,0,0,.9); }
-#a1.intro .tapgo { animation: ilin 1.1s ease 1.2s forwards, tapPulse 2.6s ease-in-out 2.4s infinite; }
+.intro .tapgo { display: inline-flex; align-items: center; gap: 10px; padding: 9px 18px 9px 12px; border-radius: 999px; border: 1px solid rgba(143,216,232,.5); background: rgba(6,10,22,.66); font-family: var(--f-mono); font-size: .8rem; letter-spacing: .12em; text-transform: uppercase; color: #eefbff; }
+.intro .tapgo .tapi::after { animation: tapring 1.6s ease-out infinite; }
+#a1.intro .tapgo { animation: ilin 1.1s ease 1.2s forwards; }
 @keyframes tapPulse { 0%, 100% { opacity: .45; } 50% { opacity: 1; } }
 .intro p { margin: 0; font-size: clamp(1.2rem, 3.6vw, 1.85rem); line-height: 1.35; text-shadow: 0 2px 16px rgba(0,0,0,.85); text-wrap: balance; }
 .intro p.em { font-style: italic; color: var(--cold); margin-top: 6px; }
@@ -244,12 +294,17 @@ button:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
 .ph-b.typing i:nth-child(2) { animation-delay: .2s; } .ph-b.typing i:nth-child(3) { animation-delay: .4s; }
 .ph-opts { display: flex; flex-direction: column; gap: 7px; }
 .ph-opts:empty { display: none; }
-.ph-lbl { font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: rgba(245,242,235,.55); padding: 2px 4px; }
+.ph-lbl { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--lantern); padding: 2px 4px; }
 .ph-opt { text-align: left; font: inherit; font-size: 14.5px; line-height: 1.3; padding: 10px 13px; border-radius: 15px; border: 1px solid rgba(255,178,74,.6); background: rgba(255,178,74,.12); color: #fff4e2; cursor: pointer; transition: background .2s, opacity .3s; }
 .ph-opt:hover { background: rgba(255,178,74,.24); }
 .ph-opt.chosen { background: var(--lantern); color: #1a1208; }
 .ph-end { align-self: center; margin-top: 8px; width: 60px; height: 60px; }
 .ph-end[hidden] { display: none; }
+.ph-end { animation: phbob 1.3s ease-in-out infinite; }
+.ph-cue { margin-top: 14px; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: #bfeef7; text-align: center; animation: tapPulse 1.8s ease-in-out infinite; }
+.ph-cue[hidden] { display: none; }
+.ph-call .ph-cue { margin-top: 8px; }
+.ph-in { cursor: pointer; }
 
 /* ---------- Act 5: pipeline studio ---------- */
 #a7, #a9, #a4 { background: radial-gradient(120% 80% at 50% 0%, #121a33, #03050d 70%); overflow: auto; }
@@ -275,14 +330,14 @@ button:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
 .stu-steps li { padding: 4px 7px; border: 1px solid rgba(143,216,232,.25); border-radius: 4px; color: var(--mute); background: rgba(3,5,11,.5); transition: color .4s, border-color .4s, background .4s; }
 .stu-steps li.on { color: #061018; background: var(--cold); border-color: var(--cold); }
 .stu-steps li.done { color: var(--cold); border-color: rgba(143,216,232,.5); }
-.stu-cap { position: absolute; left: 50%; bottom: 20px; transform: translateX(-50%); text-align: center; align-items: center; width: min(34rem, calc(100% - var(--gl) - var(--gr))); display: flex; flex-direction: column; gap: 6px; padding: 14px 16px; background: rgba(6,10,22,.6); border: 1px solid rgba(143,216,232,.22); border-radius: 10px; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); opacity: 0; transition: opacity .6s; }
+.stu-cap { position: absolute; left: 50%; bottom: 70px; transform: translateX(-50%); text-align: center; align-items: center; width: min(34rem, calc(100% - var(--gl) - var(--gr))); display: flex; flex-direction: column; gap: 6px; padding: 14px 16px; background: rgba(6,10,22,.6); border: 1px solid rgba(143,216,232,.22); border-radius: 10px; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); opacity: 0; transition: opacity .6s; }
 .stu-cap.in { opacity: 1; }
 .stu-cap .kick { color: var(--cold); }
 .stu-cap .hint, .stu-key .hint { flex: none; }
 #a9.studio::before { content: ''; position: fixed; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(90deg, rgba(3,5,11,.86) 0%, rgba(3,5,11,.72) 55%, rgba(3,5,11,.45) 100%); }
-.stu-key { position: absolute; left: 0; right: 0; bottom: 9%; padding: 0 var(--gr) 0 var(--gl); text-align: center; opacity: 0; transition: opacity 1.2s; }
+.stu-key { position: absolute; left: 0; right: 0; bottom: max(9%, 78px); padding: 0 var(--gr) 0 var(--gl); text-align: center; opacity: 0; transition: opacity 1.2s; }
 .stu-key.in { opacity: 1; }
-.stu-key p { margin: 0 auto 10px; font-size: clamp(1.15rem, 3.4vw, 1.7rem); line-height: 1.4; max-width: 30ch; text-wrap: balance; text-shadow: 0 2px 18px rgba(0,0,0,.9); }
+.stu-key p { margin: 0 auto; font-size: clamp(1.15rem, 3.4vw, 1.7rem); line-height: 1.4; max-width: 30ch; text-wrap: balance; text-shadow: 0 2px 18px rgba(0,0,0,.9); }
 @media (max-width: 560px) { .stu-steps { display: none; } }
 .col { min-height: 100%; display: flex; flex-direction: column; justify-content: center; gap: 22px; padding: 56px var(--gr) 24px var(--gl); max-width: 62rem; margin: 0 auto; }
 .title { opacity: 0; transition: opacity 1.6s; text-align: left; }
@@ -332,7 +387,7 @@ figure.fig figcaption { margin-top: 6px; font-family: var(--f-mono); font-size: 
 
 @media (prefers-reduced-motion: reduce) {
   .stu-title.in h1, .stu-title.in .ik, .stu-title.in .scan, .stu-title.in p, #a1.intro .tapgo { animation-duration: .01s; animation-delay: 0s; animation-iteration-count: 1; }
-  .line.rise, .dr li, .fl .orb, .ph-b, .phone.ringing .ph-av, .phone.ringing .ph-acc { animation: none; }
+  .line.rise, .dr li, .fl .orb, .ph-b, .phone.ringing .ph-av, .phone.ringing .ph-acc, .ph-end, .ph-cue { animation: none; }
   .title, .zone, .node, .key, .fact, .foot, figure.fig, .after, .fl, #big, #curtain, .dock, .phone { transition: none; }
 }
 </style>
@@ -355,8 +410,9 @@ figure.fig figcaption { margin-top: 6px; font-family: var(--f-mono); font-size: 
     <div class="intro" id="intro">
       <div class="intro-in">
         <div class="kick il">Smart glasses · 1960s to now</div>
-        <div class="tapgo il">Tap anywhere to begin</div>
+        <div class="tapgo il"><i class="tapi" aria-hidden="true"></i><span id="tapgo">Tap anywhere to begin</span></div>
       </div>
+      <span class="brand in" role="img" aria-label="SysNet, the System and Network Lab"><img src="img/sysnet.webp" alt="" draggable="false"><i style="left:95.2%;top:23.5%;color:#d2452f"></i><i style="left:85.1%;top:35.2%;color:#2f86d6"></i><i style="left:91.4%;top:46.8%;color:#f0b429"></i><i style="left:84.2%;top:71.2%;color:#5cb531"></i></span>
     </div>
   </section>
 
@@ -389,6 +445,7 @@ figure.fig figcaption { margin-top: 6px; font-family: var(--f-mono); font-size: 
             <div class="ph-av">M</div>
             <div class="ph-name">Mom</div>
             <div class="ph-sub" id="phSub">mobile</div>
+            <div class="ph-cue" id="phCue">Tap anywhere to answer</div>
             <div class="ph-btns">
               <div><button class="ph-dec" id="phDec" type="button" aria-label="Decline"><svg viewBox="0 0 24 24"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1z"/></svg></button>Decline</div>
               <div><button class="ph-acc" id="phAcc" type="button" aria-label="Answer"><svg viewBox="0 0 24 24"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1z"/></svg></button>Answer</div>
@@ -399,6 +456,7 @@ figure.fig figcaption { margin-top: 6px; font-family: var(--f-mono); font-size: 
             <div class="ph-log" id="phLog" aria-live="polite"></div>
             <div class="ph-opts" id="phOpts"></div>
             <button class="ph-end" id="phEnd" type="button" aria-label="End call" hidden><svg viewBox="0 0 24 24"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1z"/></svg></button>
+            <div class="ph-cue" id="phEndL" hidden>Tap to hang up</div>
           </div>
         </div>
       </div>
@@ -410,7 +468,7 @@ figure.fig figcaption { margin-top: 6px; font-family: var(--f-mono); font-size: 
   <!-- ACT 3: what the call gives away, in the studio -->
   <section id="a4" class="act" aria-label="What the call gives away. Tap anywhere to move on.">
     <div class="stu">
-      <div class="stu-cap" id="infCap" aria-live="polite"><div class="kick" id="infK"></div><p class="line" id="infL"></p><span class="hint" id="infH">Tap anywhere to continue.</span></div>
+      <div class="stu-cap" id="infCap" aria-live="polite"><div class="kick" id="infK"></div><p class="line" id="infL"></p><span class="hint" id="infH"></span></div>
     </div>
   </section>
 
@@ -419,8 +477,8 @@ figure.fig figcaption { margin-top: 6px; font-family: var(--f-mono); font-size: 
     <div class="stu">
       <div class="stu-title" id="stuTitle"><div class="ik">Introducing</div><h1>PARDA</h1><div class="scan"></div><p>Privacy for what smart glasses hear</p></div>
       <ol class="stu-steps" id="stuSteps"><li>Diarize</li><li>Transcribe</li><li>Anonymize</li><li>Encrypt</li><li>Re-voice</li></ol>
-      <div class="stu-cap" id="stuCap" aria-live="polite"><div class="kick" id="stuK"></div><p class="line" id="stuL"></p><span class="hint">Tap anywhere to skip ahead.</span></div>
-      <div class="stu-key" id="stuKey"><p>Redaction happens on the glasses, before audio ever leaves them.</p><span class="hint">Tap anywhere to continue.</span></div>
+      <div class="stu-cap" id="stuCap" aria-live="polite"><div class="kick" id="stuK"></div><p class="line" id="stuL"></p></div>
+      <div class="stu-key" id="stuKey"><p>Redaction happens on the glasses, before audio ever leaves them.</p></div>
     </div>
     <div class="col" id="pipeFallback" hidden>
       <div class="title" id="title"><h1>PARDA</h1><p>parda &middot; veil</p></div>
@@ -457,6 +515,7 @@ figure.fig figcaption { margin-top: 6px; font-family: var(--f-mono); font-size: 
       </div>
       <p class="foot" id="foot9">Tested on a Raspberry Pi 5, not real glasses.</p>
       <p class="foot" id="fig9">Measured results will be shared once the paper is out.</p>
+      <span class="brand" id="by9" role="img" aria-label="SysNet, the System and Network Lab"><img src="img/sysnet.webp" alt="" draggable="false"><i style="left:95.2%;top:23.5%;color:#d2452f"></i><i style="left:85.1%;top:35.2%;color:#2f86d6"></i><i style="left:91.4%;top:46.8%;color:#f0b429"></i><i style="left:84.2%;top:71.2%;color:#5cb531"></i></span>
       <button id="again" type="button">Walk it again</button>
     </div>
   </section>
@@ -465,6 +524,9 @@ figure.fig figcaption { margin-top: 6px; font-family: var(--f-mono); font-size: 
     <div class="l"></div>
     <div class="l"><span class="actl" id="actl"></span><button id="snd" type="button" aria-pressed="true" aria-label="Sound on" title="Sound"><svg class="s-on" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9zM16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg><svg class="s-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9zM17 9l5 6M22 9l-5 6"/></svg></button></div>
   </div>
+  <div class="prog" id="prog" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+  <div class="cue" id="cue" role="status"><i class="tapi" aria-hidden="true"></i><span class="cw"><span class="ct" id="cueT"></span><span class="cs" id="cueS"></span></span></div>
+  <div id="nudge" aria-hidden="true"></div>
   <div id="curtain"></div>
 </div>
 
@@ -477,6 +539,8 @@ const reduce = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: redu
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 const PI = Math.PI;
+// say 'tap' on touch screens and 'click' where there is a mouse
+const COARSE = !!(window.matchMedia && matchMedia('(pointer: coarse)').matches), TAP = COARSE ? 'Tap' : 'Click';
 const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 
 /* =====================================================================
@@ -542,7 +606,35 @@ const worldEl = $('world');
 const dockE = $('dock'), kickE = $('kick'), lineE = $('line'), goB = $('go'), hintE = $('hint');
 let goFn = null, tapAction = null, worldOn = false, waveOn = false, a1On = true;
 
-function setAct(n) { $('actl').textContent = 'Act ' + n + ' / ' + ACTS.length + ' · ' + ACTS[n - 1]; }
+function setAct(n) {
+  $('actl').textContent = 'Act ' + n + ' / ' + ACTS.length + ' · ' + ACTS[n - 1];
+  Array.prototype.forEach.call($('prog').children, (el, i) => { el.classList.toggle('done', i < n - 1); el.classList.toggle('on', i === n - 1); });
+}
+/* The tap cue. Call cue(text) the moment a tap will do something, cue('') the moment it will not.
+   { auto: true } = the scene is playing by itself and a tap only skips. { sub } = a second, smaller line. */
+const cueE = $('cue'), cueT = $('cueT'), cueS = $('cueS'), nudgeE = $('nudge');
+let cueAt = 0, lastIn = 0;
+function cue(t, o) {
+  o = o || {};
+  if (t) { cueT.textContent = t; cueS.textContent = o.sub != null ? o.sub : (!COARSE && !o.auto && !o.nokey ? 'or press Space' : ''); }
+  cueE.classList.toggle('auto', !!o.auto); cueE.classList.toggle('on', !!t);
+  cueE.classList.remove('nudge'); nudgeE.classList.remove('show'); cueAt = performance.now();
+}
+// waited on for 7 seconds with no input: pulse the cue and ring the middle of the screen
+setInterval(() => {
+  const idle = cueE.classList.contains('on') && !cueE.classList.contains('auto') && performance.now() - Math.max(cueAt, lastIn) > 7000;
+  cueE.classList.toggle('nudge', idle); nudgeE.classList.toggle('show', idle);
+}, 1000);
+// every press gets an answer, even when the story is not ready to move
+$('app').addEventListener('pointerdown', (e) => {
+  lastIn = performance.now(); cueE.classList.remove('nudge'); nudgeE.classList.remove('show');
+  if (reduce) return;
+  const r = $('app').getBoundingClientRect(), f = document.createElement('div'); f.className = 'tapfx';
+  f.style.left = (e.clientX - r.left) + 'px'; f.style.top = (e.clientY - r.top) + 'px';
+  $('app').appendChild(f); setTimeout(() => f.remove(), 700);
+}, true);
+window.addEventListener('keydown', () => { lastIn = performance.now(); cueE.classList.remove('nudge'); nudgeE.classList.remove('show'); }, true);
+$('tapgo').textContent = TAP + ' anywhere to begin'; $('phCue').textContent = TAP + ' anywhere to answer'; $('phEndL').textContent = TAP + ' to hang up';
 function showAct(id) {
   ['a1', 'world', 'a4', 'a7', 'a9'].forEach((k) => $(k).classList.toggle('on', k === id));
   worldOn = id === 'world'; a1On = id === 'a1';
@@ -556,7 +648,7 @@ function cover(on) { curtain.classList.toggle('on', on); return wait(reduce ? 40
 function setCard(o) {
   kickE.textContent = o.k || '';
   if (o.html) lineE.innerHTML = o.t; else lineE.textContent = o.t || '';
-  hintE.textContent = o.hint || '';
+  hintE.textContent = ''; cue(o.hint || '', o.cue);
   lineE.classList.remove('rise'); void lineE.offsetWidth; lineE.classList.add('rise');
 }
 function cardShow(on) { dockE.classList.toggle('off', !on); }
@@ -1730,7 +1822,9 @@ function paintEra(n, settled) {
   Array.prototype.forEach.call(dotsE.children, (el, k) => el.classList.toggle('on', k === n));
   const last = n === 6 && settled;
   go1.hidden = !last;
-  h1.textContent = last ? 'Tap anywhere to continue.' : (n === 6 ? '' : 'Tap anywhere for the next decade.');
+  h1.textContent = '';
+  // the cue shows once a decade has settled, never during the intro or mid-turn
+  cue($('a1').classList.contains('intro') || !settled ? '' : n === 6 ? TAP + ' anywhere to continue' : TAP + ' anywhere for the next decade');
 }
 
 // The guy: a cutout in each decade's outfit and smart glasses; in the 2020s, the character sheet itself.
@@ -1862,7 +1956,7 @@ function spinTo(n) {
   if (W1.t >= 1 && n === W1.to) return;
   W1.from = W1.pos; W1.to = n; W1.t = 0; W1.settled = false;
   W1.dur = reduce ? 0.05 : 1.7 + 0.25 * Math.abs(n - W1.from);
-  era = n; W1.pending = n; go1.hidden = true; h1.textContent = ''; whoosh(W1.dur * 0.9); click(1600, 0.06);
+  era = n; W1.pending = n; go1.hidden = true; h1.textContent = ''; cue(''); whoosh(W1.dur * 0.9); click(1600, 0.06);
 }
 function tlReset() {
   if (W1) { W1.from = W1.to = W1.pos = 0; W1.t = 1; W1.yaw = W1.pitch = 0; W1.settled = true; W1.pending = null; W1.intro = true; W1.desc = false; W1.ik = 1; W1.ikT = 0; W1.spin = 0; W1.push = 0; W1.settleT = 0; }
@@ -2234,13 +2328,13 @@ function phoneShow(state) {
   phIn.hidden = state !== 'in'; phCall.hidden = state !== 'call';
   clearInterval(phT); phT = null;
   if (state === 'call') { phStart = performance.now(); phTick(); phT = setInterval(phTick, 500); }
-  if (state === 'off' || state === 'in') { phLog.innerHTML = ''; phOpts.innerHTML = ''; phEnd.hidden = true; $('phSub').textContent = 'mobile'; }
+  if (state === 'off' || state === 'in') { phLog.innerHTML = ''; phOpts.innerHTML = ''; phEnd.hidden = true; $('phEndL').hidden = true; phCall.onclick = null; $('phSub').textContent = 'mobile'; }
 }
 function bubble(who, text) { const b = document.createElement('div'); b.className = 'ph-b ' + who; b.textContent = text; phLog.appendChild(b); phLog.scrollTop = phLog.scrollHeight; return b; }
 function typing() { const b = document.createElement('div'); b.className = 'ph-b mom typing'; b.innerHTML = '<i></i><i></i><i></i>'; phLog.appendChild(b); phLog.scrollTop = phLog.scrollHeight; return b; }
 function phChoose(list) {
   return new Promise((res) => {
-    phOpts.innerHTML = '<div class="ph-lbl">Say</div>';
+    phOpts.innerHTML = '<div class="ph-lbl">' + TAP + ' a reply</div>';
     list.forEach((o) => {
       const b = document.createElement('button'); b.type = 'button'; b.className = 'ph-opt'; b.textContent = o.say;
       b.onclick = () => { if (phOpts.dataset.lock) return; phOpts.dataset.lock = '1'; audioInit(); b.classList.add('chosen'); setTimeout(() => { phOpts.innerHTML = ''; delete phOpts.dataset.lock; res(o); }, 320); };
@@ -2249,7 +2343,8 @@ function phChoose(list) {
     phLog.scrollTop = phLog.scrollHeight;
   });
 }
-$('phAcc').onclick = () => { audioInit(); if (phAccept) phAccept(); };
+// the whole ringing screen answers, not just the green button
+phIn.onclick = (e) => { if (e.target.closest && e.target.closest('#phDec')) return; audioInit(); if (phAccept) phAccept(); };
 $('phDec').onclick = () => { phone.classList.remove('shake'); void phone.offsetWidth; phone.classList.add('shake'); $('phSub').textContent = 'She’ll keep calling.'; buzz(); };
 
 /* wave canvas (act 6) */
@@ -2507,6 +2602,8 @@ function studioStage(n) {
   if (C.k) { $('stuK').textContent = C.k; $('stuL').textContent = C.l; }
   $('stuKey').classList.toggle('in', n === 6);
   if (n === 6) amb(0.12, 2);
+  // the pipeline plays by itself; it only waits for you on the last frame
+  if (n < 6) cue(TAP + ' to skip ahead', { auto: true }); else cue(TAP + ' anywhere to continue');
 }
 function studioIdle() {
   const S = ST; S.mode = 'idle'; S.stage = 6; bedOn(false);
@@ -2714,7 +2811,9 @@ function infStage() {
   const C = [['03 · What you said', I.N > 1 ? 'Two things you said on the call.' : 'One thing you said on the call.'], ['03 · What it gives away', 'What a listener can work out.'], ['03 · Together', 'No name. No number. No address. It still points to you.']][I.stage];
   $('infK').textContent = C[0]; $('infL').textContent = C[1];
   if (I.stage >= 1) I.view = 'R';
-  $('infH').textContent = I.stage === 0 || cam2.aspect >= 0.8 ? 'Tap anywhere to continue.' : (window.matchMedia && matchMedia('(pointer: coarse)').matches) ? 'Swipe to look back and forth. Tap to continue.' : 'Drag or press \u2190 \u2192 to look. Tap to continue.';
+  // stages 0 and 1 play by themselves; only the last one waits for a tap
+  const look = I.stage >= 1 && cam2.aspect < 0.8 ? (COARSE ? 'Swipe to look back and forth' : 'Drag or press \u2190 \u2192 to look') : null;
+  if (I.stage < 2) cue(TAP + ' to skip ahead', { auto: true, sub: look || '' }); else cue(TAP + ' anywhere to continue', look ? { sub: look } : null);
   if (I.stage === 1) SFX.whoosh(1.5); else if (I.stage === 2) SFX.thud();
   $('infL').classList.remove('rise'); void $('infL').offsetWidth; $('infL').classList.add('rise');
   $('infCap').classList.add('in');
@@ -2761,8 +2860,8 @@ function inferUpdate(dt) {
   const hh = Math.atan(Math.tan(cam2.fov * PI / 360) * cam2.aspect), portrait = cam2.aspect < 0.8;
   let lx = I.LX, ly = 0, dist = Math.max(10.8, 3.4 / Math.tan(hh));
   if (st >= 1) {
-    if (!portrait) { lx = (I.LX + I.RX) / 2 - 1.5; dist = Math.max(12, 13.8 / Math.tan(hh)); }
-    else if (I.view === 'R') { lx = I.RX - 0.4; ly = -0.35; dist = Math.max(11.8, 3.1 / Math.tan(hh)); }
+    if (!portrait) { lx = (I.LX + I.RX) / 2 - 0.4; ly = -0.8; dist = Math.max(12, 13.8 / Math.tan(hh)); }
+    else if (I.view === 'R') { lx = I.RX - 0.4; ly = -1.0; dist = Math.max(11.8, 3.1 / Math.tan(hh)) * 1.1; }
     // view 'L' on a phone: back on what you said, framed as it was first shown
   }
   S.tv.set(lx, ly, 0); S.look.lerp(S.tv, k * 0.45);
@@ -2857,7 +2956,7 @@ async function b_intro() {
   midText('Evening.', 0.2);
   midText('A street like any other.', 0.3);
   midText('Turn around.', 0.4);
-  setCard({ k: 'Eyes open', t: 'An evening street. Drag to look around.', hint: 'Tap anywhere to walk on.' }); cardShow(true);
+  setCard({ k: 'Eyes open', t: 'An evening street.', hint: TAP + ' anywhere to walk on', cue: { sub: 'Drag to look around' } }); cardShow(true);
   setGo('Walk on', next); tapAction = next;
 }
 async function b_walk() {
@@ -2866,7 +2965,7 @@ async function b_walk() {
   if (!await arrive(1, my)) return;
   midText('Nobody looks at you.', 0.22);
   midText('Nobody has to.', 0.32);
-  setCard({ k: 'Eyes open', t: 'Everyone here is a stranger.', hint: 'Tap anywhere to walk on.' }); cardShow(true);
+  setCard({ k: 'Eyes open', t: 'Everyone here is a stranger.', hint: TAP + ' anywhere to walk on', cue: { sub: 'Drag to look around' } }); cardShow(true);
   setGo('Walk on', next); tapAction = next;
 }
 async function b_call() {
@@ -2877,7 +2976,7 @@ async function b_call() {
   swayOn = true;
   await wait(900); if (my !== run) return;
   buzz(); ringStart(); phoneShow('in');
-  const ringL = midText('Your phone. Tap anywhere to answer.', 0.26);
+  const ringL = midText('Your phone. ' + TAP + ' anywhere to answer.', 0.26);
   await new Promise((res) => { phAccept = res; goFn = res; });
   if (my !== run) return;
   phAccept = null; goFn = null; ringStop(); dropLantern(ringL); amb(0.18, 1);
@@ -2897,10 +2996,11 @@ async function b_call() {
   await wait(1300); if (my !== run) return;
   bubble('me', CALL_END[1]);
   await wait(600); if (my !== run) return;
-  phEnd.hidden = false; phLog.scrollTop = phLog.scrollHeight;
-  await new Promise((res) => { phEnd.onclick = res; goFn = res; });
+  phEnd.hidden = false; $('phEndL').hidden = false; phLog.scrollTop = phLog.scrollHeight;
+  // anywhere on the call screen hangs up, not just the red button
+  await new Promise((res) => { phCall.onclick = res; goFn = res; });
   if (my !== run) return;
-  phEnd.onclick = null; goFn = null; phEnd.hidden = true;
+  phCall.onclick = null; goFn = null; phEnd.hidden = true; $('phEndL').hidden = true;
   bubble('sys', 'Call ended · ' + $('phTimer').textContent);
   clearInterval(phT);
   await wait(900); if (my !== run) return;
@@ -2923,24 +3023,26 @@ async function b_freeze() {
   await wait(2400); if (my !== run) return;
   big.classList.remove('in');
   await wait(700); if (my !== run) return;
-  setCard({ k: 'Freeze', t: 'Can you spot the smart glasses?', hint: 'Tap the scene.' }); cardShow(true);
+  setCard({ k: 'Freeze', t: 'Can you spot the smart glasses?', hint: TAP + ' where you think they are', cue: { nokey: true } }); cardShow(true);
   tapAction = async (p) => {
-    tapAction = null;
-    const rip = document.createElement('div'); rip.className = 'rip';
-    const r = worldEl.getBoundingClientRect(); rip.style.left = (p.x - r.left) + 'px'; rip.style.top = (p.y - r.top) + 'px';
-    worldEl.appendChild(rip); setTimeout(() => rip.remove(), 1000);
-    await wait(900); if (my !== run) return;
+    tapAction = null; cue('');
+    // did the guess land on his head?
+    const r = worldEl.getBoundingClientRect(), hv = new V3(), fv = new V3();
+    hero.head.getWorldPosition(hv); hero.root.getWorldPosition(fv); hv.project(camera); fv.project(camera);
+    const hx = r.left + (hv.x + 1) / 2 * r.width, hy = r.top + (1 - hv.y) / 2 * r.height, bodyH = Math.abs(hv.y - fv.y) / 2 * r.height;
+    const hit = hv.z < 1 && Math.hypot(p.x - hx, p.y - hy) < Math.max(44, bodyH * 0.25);
+    await wait(700); if (my !== run) return;
     const gp = tmpV(); hero.head.getWorldPosition(gp); faceT = new V3(gp.x, gp.y + 0.006, gp.z + 0.1); zoomOn = true; autoFace = true;
     await wait(reduce ? 50 : 1600); if (my !== run) return;
     const cp = tmpV(); HERO_CAM.getWorldPosition(cp);
     lantern('Camera', cp.x, cp.y, cp.z, 'callout');
-    setCard({ k: 'Freeze', t: 'They looked like normal glasses.', hint: 'Tap anywhere.' });
+    setCard({ k: 'Freeze', t: hit ? 'Good eye. They look like normal glasses.' : 'Here. They looked like normal glasses.', hint: TAP + ' anywhere to continue' });
     const go = () => { ringE.onclick = null; tapAction = null; clearLanterns(); next(); };
     ringE.onclick = go; tapAction = go; goFn = go;
   };
 }
 async function b_dossier() {
-  const my = run; setAct(3);
+  const my = run; setAct(4);
   tapAction = null;
   if (R2) {
     cardShow(false); hideGo(); clearLanterns(); ringE.onclick = null;
@@ -3010,7 +3112,7 @@ async function b_honest() {
   try { window.speechSynthesis && speechSynthesis.cancel(); } catch (e) {}
   await cover(true); if (my !== run) return;
   amb(0, 0.3); showAct('a9'); if (R2) studioIdle();
-  ['fig9', 'foot9'].forEach((id) => $(id).classList.remove('in'));
+  ['fig9', 'foot9', 'by9'].forEach((id) => $(id).classList.remove('in'));
   Array.prototype.forEach.call(document.querySelectorAll('.fact'), (f) => f.classList.remove('in'));
   await cover(false); if (my !== run) return;
   const facts = document.querySelectorAll('.fact');
@@ -3019,14 +3121,16 @@ async function b_honest() {
   $('foot9').classList.add('in');
   await wait(700); if (my !== run) return;
   $('fig9').classList.add('in');
+  await wait(700); if (my !== run) return;
+  $('by9').classList.add('in');
 }
 function revealHonest() {
   if (!$('a9').classList.contains('on')) return;
   Array.prototype.forEach.call(document.querySelectorAll('.fact'), (f) => f.classList.add('in'));
-  ['foot9', 'fig9'].forEach((id) => $(id).classList.add('in'));
+  ['foot9', 'fig9', 'by9'].forEach((id) => $(id).classList.add('in'));
 }
 $('again').onclick = async () => {
-  audioInit(); run++; const my = run;
+  audioInit(); run++; const my = run; cue('');
   ringStop(); bedOn(false); try { window.speechSynthesis && speechSynthesis.cancel(); } catch (e) {}
   await cover(true); if (my !== run) return;
   picks = []; bi = 0; goFn = null;
@@ -3037,7 +3141,7 @@ $('again').onclick = async () => {
 };
 
 const beats = [b_timeline, b_intro, b_walk, b_call, b_freeze, b_dossier, b_dark, b_honest];
-function next() { bi++; run++; if (bi < beats.length) beats[bi](); }
+function next() { cue(''); bi++; run++; if (bi < beats.length) beats[bi](); }
 
 bi = 0; setAct(1);
 })();
