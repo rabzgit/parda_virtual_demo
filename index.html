@@ -138,7 +138,7 @@ button:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
 @keyframes brandping { 0% { opacity: .95; transform: translate(-50%, -50%) scale(.6); } 30%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(2.4); } }
 .intro .brand { position: absolute; left: 50%; bottom: max(26px, env(safe-area-inset-bottom, 0px)); margin-left: max(-75px, -19vw); width: min(150px, 38vw); border-radius: 8px; }
 #a1.intro .brand.in { animation-delay: 1.9s; }
-.honest .brand { margin-top: 6px; }
+.honest .brand { width: min(260px, 66vw); }
 @media (prefers-reduced-motion: reduce) { .brand.in { animation-duration: .01s; animation-delay: 0s !important; } .brand.in::after, .brand.in i, .cue.on .tapi::after, .intro .tapgo .tapi::after, #nudge.show { animation: none; } }
 
 #curtain { position: absolute; inset: 0; z-index: 40; background: #02030a; opacity: 0; pointer-events: none; transition: opacity .55s; }
@@ -507,14 +507,6 @@ figure.fig figcaption { margin-top: 6px; font-family: var(--f-mono); font-size: 
   <!-- ACT 7: the honest part -->
   <section id="a9" class="act">
     <div class="col honest">
-      <div class="kick">The honest part</div>
-      <div class="facts">
-        <div class="fact">Leakage goes down. Not to zero.</div>
-        <div class="fact">Anonymized speech is harder to understand.</div>
-        <div class="fact">Processing finishes after the recording ends, not live.</div>
-      </div>
-      <p class="foot" id="foot9">Tested on a Raspberry Pi 5, not real glasses.</p>
-      <p class="foot" id="fig9">Measured results will be shared once the paper is out.</p>
       <span class="brand" id="by9" role="img" aria-label="SysNet, the System and Network Lab"><img src="img/sysnet.webp" alt="" draggable="false"><i style="left:95.2%;top:23.5%;color:#d2452f"></i><i style="left:85.1%;top:35.2%;color:#2f86d6"></i><i style="left:91.4%;top:46.8%;color:#f0b429"></i><i style="left:84.2%;top:71.2%;color:#5cb531"></i></span>
       <button id="again" type="button">Walk it again</button>
     </div>
@@ -574,7 +566,7 @@ const CALLX = [
       clues: [{ tag: 'Implicit · Economic', why: 'Money pressure. Paid late.', fact: 'short on money', caught: false }, { tag: 'Linkable · Relational', why: 'A coworker lives next door.', fact: 'coworker next door', caught: true }] } ] }
 ];
 const CALL_END = ['Okay. Call me when you’re home.', 'Will do. Bye, Mom.'];
-const ACTS = ['Timeline', 'The call', 'Freeze', 'The dossier', 'PARDA', 'The honest part'];
+const ACTS = ['Timeline', 'The call', 'Freeze', 'The dossier', 'PARDA', 'The end'];
 const plain = (h) => h.replace(/<[^>]+>/g, '');
 
 
@@ -2885,8 +2877,8 @@ function inferUpdate(dt) {
   const end = (e) => {
     if (!d) return;
     const tap = d.moved < 8 && performance.now() - d.t < 700, dx = e.clientX - d.sx, dy = e.clientY - d.sy; d = null; if (ST) ST.drag = null;
-    // swipe right looks right (the inferences); swipe left looks back left (what you said)
-    if (!tap && id === 'a4' && Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.2) { inferSwipe(dx > 0 ? 1 : -1); return; }
+    // content follows the finger: swipe left brings the inferences in from the right, swipe right brings back what you said
+    if (!tap && id === 'a4' && Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.2) { inferSwipe(dx < 0 ? 1 : -1); return; }
     if (!tap) return;
     if (id === 'a4') inferTap();
     else if (id === 'a7') { if (R2) studioTap(); else if (goFn) goFn(); }
@@ -3112,22 +3104,14 @@ async function b_honest() {
   try { window.speechSynthesis && speechSynthesis.cancel(); } catch (e) {}
   await cover(true); if (my !== run) return;
   amb(0, 0.3); showAct('a9'); if (R2) studioIdle();
-  ['fig9', 'foot9', 'by9'].forEach((id) => $(id).classList.remove('in'));
-  Array.prototype.forEach.call(document.querySelectorAll('.fact'), (f) => f.classList.remove('in'));
+  $('by9').classList.remove('in');
   await cover(false); if (my !== run) return;
-  const facts = document.querySelectorAll('.fact');
-  for (let i = 0; i < facts.length; i++) { await wait(700); if (my !== run) return; facts[i].classList.add('in'); }
-  await wait(900); if (my !== run) return;
-  $('foot9').classList.add('in');
-  await wait(700); if (my !== run) return;
-  $('fig9').classList.add('in');
-  await wait(700); if (my !== run) return;
+  await wait(500); if (my !== run) return;
   $('by9').classList.add('in');
 }
 function revealHonest() {
   if (!$('a9').classList.contains('on')) return;
-  Array.prototype.forEach.call(document.querySelectorAll('.fact'), (f) => f.classList.add('in'));
-  ['foot9', 'fig9', 'by9'].forEach((id) => $(id).classList.add('in'));
+  $('by9').classList.add('in');
 }
 $('again').onclick = async () => {
   audioInit(); run++; const my = run; cue('');
